@@ -3,25 +3,16 @@
 close all, clear, clc
 addpath('kinematics');
 
-tube = Precurved(5e-3, 90, 30e-3, 30e-3);
+outer = Precurved(5e-3, 15, 30e-3, 30e-3);
+q = [0 10e-3];
+outer.fwkine(q);
 
+inner = Precurved(2e-3, 50, 30e-3, 30e-3);
 q = [0 30e-3];
-tube.fwkine(q);
-model = tube.makePhysicalModel();
+inner.fwkine(q);
 
-figure
-surf(model.surface.X, model.surface.Y, model.surface.Z)
+tubes = [outer inner];
 
-axis('image');
-view([-135 35]);
-grid on;
+plotTubes(tubes);
 
-camlight('headlight');
-material('dull');
-axis equal
-zlim([-.01 .08]);
-ylim([-.05 .05]);
-xlim([-.05 .05]);
-xlabel('X (m)');
-ylabel('Y (m)');
-zlabel('Z (m)');
+

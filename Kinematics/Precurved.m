@@ -73,7 +73,7 @@ classdef Precurved < Robot
             % configurations
             base = [kappa_list(1) s_list(1) theta_list(1)];     % initial straight translation
             curve = [kappa_list(2) s_list(2) theta_list(2)];    % curved section
-            c = [base curve]
+            c = [base curve];
             
             self.kappa = kappa_list;
             self.s = s_list;
