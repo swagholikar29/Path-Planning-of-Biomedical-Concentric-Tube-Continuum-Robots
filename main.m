@@ -12,15 +12,16 @@ Lc = 30e-3;
 
 for i = 1:nTubes
     tubes(i) = Precurved(ODs(i), IDs(i), precurves(i), Ls, Lc);
-    tubes(i).fwkine(deformation(tubes(i).precurve, Lc, 10e-3));
+    tubes(i).fwkine([0 0 0; tubes(i).precurve 0 Lc]);
 end
 
 % plot the tubes individually
-plotTubes(tubes);
+% plotTubes(tubes);
 
 % deformed together 
-acts = [10e-3 0; 
-        30e-3 0];
+acts = [10e-3 deg2rad(0); 
+        30e-3 deg2rad(90);
+        60e-3 deg2rad(0)];
 q = actuator2arcparams(tubes, acts)
 for i = 1:nTubes
     tubes(i).fwkine(q(:,:,i));

@@ -15,13 +15,13 @@ numTubes = length(tubes);
 numOverlaps = 2*numTubes-1;
 
 % break down
-p = acts(:,1);
-theta = acts(:,2);
+baseTrans = acts(:,1);
+baseRot = acts(:,2);
 
 % get curved section lengths
 d = zeros(1, numTubes);
-for i = 1:numTubes
-    d(i) = tubes(i).Lc;
+for tube = 1:numTubes
+    d(tube) = tubes(tube).Lc;
 end
 
 % matrix defining curved/straight/skip for each tube at each overlap
@@ -30,10 +30,11 @@ isCurved = zeros(numOverlaps, numTubes);
 
 %% Calculate overlap lengths
 % TODO: make algorithmic
+% TODO: replace 'isCurved' with function that uses the tube lengths
 
 % init overlap lengths
 oLs = zeros(1, numOverlaps);
-oLs(1) = p(2) - p(1);
+oLs(1) = baseTrans(2) - baseTrans(1);
 oLs(2) = d(1) - oLs(1);
 
 if numTubes == 2
@@ -41,7 +42,7 @@ if numTubes == 2
     isCurved = [1 0; 1 1; -1 1];
     
 elseif numTubes == 3
-    oLs(3) = p(3) - (oLs(2) + oLs(1));
+    oLs(3) = baseTrans(3) - (oLs(2) + oLs(1));
     oLs(4) = d(2) - (oLs(3) + oLs(2));
     oLs(5) = d(3) - oLs(4);
     
@@ -51,16 +52,34 @@ end
 %% get emergent curvatures for each overlap section
 %    each overlap
 
+baseRot
 newK = zeros(numOverlaps, 1);  % init new ks for each overlapped section
-for  i = 1:numOverlaps
-    newK(i) = inplane_bending(tubes, isCurved(i,:));
+newTheta = zeros(numOverlaps, 1);
+for  link = 1:numOverlaps
+    [newK(link) newTheta(link)] = inplane_bending(tubes, baseRot, isCurved(link,:));
 end
 
 %% Create q of arc parameters
 q = zeros(numOverlaps + 1, 3, numTubes);
 
-for i = 1:numTubes
-    q(:,:,i) = deformation(newK, oLs, p(1), isCurved(:,i)); 
+for t = 1:numTubes
+    
+    q(1,:, t) = [0 baseRot(t) baseTrans(1)];    % initial straight section
+    
+    for link = 1:numOverlaps
+        k = newK(link);
+        theta = newTheta(link);
+        s = oLs(link);
+        
+        % if the section ends
+        if isCurved(link,t) == -1
+            k = 0;
+            theta = 0;
+            s = 0;
+        end
+            
+        q(link+1,:,t) = [k theta s];
+    end
 end
 end
 

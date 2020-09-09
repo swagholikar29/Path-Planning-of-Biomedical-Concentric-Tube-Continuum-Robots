@@ -1,20 +1,30 @@
-function [k] = inplane_bending(tubes, isCurved)
+function [k, phi] = inplane_bending(tubes, theta, isCurved)
 %INPLANE_BENDING uses the elastic deformation formulas found in Webster2009
 %  to calculate the resulting curvature
 %  INPUTS
-%   tubes: array of Precurved tubes
+%   tubes:  [N] array of Precurved tubes
+%   thetas: [N] array of base rotations
 %   isCurved: [N] optional array mapping sections that are curved
 %       1 = curved, 0 = straight, -1 = skip
 %  OUTPUTS
-%   ks: new kappas
+%   k:   curvature of links
+%   phi: rotation of links
 
 numTubes = length(tubes);
+
+if ~exist('theta', 'var')
+    theta = zeros(1, numTubes);
+end
+
 if ~exist('isCurved', 'var')
     isCurved = ones(1, numTubes);
 end
 
-k_num = 0;
-k_dem = 0;
+kx_num = 0;
+kx_dem = 0;
+
+ky_num = 0;
+ky_dem = 0;
 for i = 1:numTubes
     t = tubes(i);
     M = t.E * t.I;
@@ -22,10 +32,16 @@ for i = 1:numTubes
     % skip current tube
     if isCurved(i) == -1, continue, end
     
-    k_num = k_num + (M * (isCurved(i) * t.precurve));
-    k_dem = k_dem + (M);
+    kx_num = kx_num + (M * (isCurved(i) * t.precurve) * cos(theta(i)));
+    kx_dem = kx_dem + (M);
+    
+    ky_num = ky_num + (M * (isCurved(i) * t.precurve) * sin(theta(i)));
+    ky_dem = ky_dem + (M);
 end
 
-k = k_num/k_dem;
-end
+kx = kx_num/kx_dem;
+ky = ky_num/ky_dem;
 
+k = sqrt(kx.^2 + ky.^2);
+phi = atan2(ky, kx);
+end

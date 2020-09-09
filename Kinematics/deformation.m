@@ -1,4 +1,4 @@
-function q = deformation(ks, arcs, d, isCurved)
+function q = deformation(ks, arcs, thetas, d, baseRot, isCurved)
     % Maps the results of elastic deformation to a standard
     % configuration
     %   N = numSections - 1
@@ -7,6 +7,7 @@ function q = deformation(ks, arcs, d, isCurved)
     %   arcs = [Nx1] (m) array of section arc lengths
     %   thetas = [Nx1] (rad) array of rotations
     %   d    = (m) initial straight translation
+    %   baseRot = (rad) initial base rotation
     %   isCurved: [N] optional array mapping sections that are curved
     %       1 = curved, 0 = straight, -1 = skip
     % OUTPUT
@@ -24,10 +25,9 @@ function q = deformation(ks, arcs, d, isCurved)
     q = zeros(numCurves + 1, 3);    % output
     
     % initial straight section, no curve, only translation
-    q(1,:) = [0 0 d];
+    q(1,:) = [0 baseRot d];
     
     % following curved sections (multiple due to elastic deformations
-    %   currently all rotations are 0 after base, torsional rigidity
     for i = 1:numCurves
         k = ks(i);
         s = arcs(i);
@@ -37,6 +37,6 @@ function q = deformation(ks, arcs, d, isCurved)
             s = 0;
         end
             
-        q(i+1,:) = [k 0 s];
+        q(i+1,:) = [k thetas(i) s];
     end
 end
