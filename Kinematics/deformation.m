@@ -27,7 +27,7 @@ function q = deformation(ks, arcs, d, isCurved)
     q(1,:) = [0 0 d];
     
     % following curved sections (multiple due to elastic deformations
-    %   currently all rotations are 0, sctrictly inplane
+    %   currently all rotations are 0 after base, torsional rigidity
     for i = 1:numCurves
         k = ks(i);
         s = arcs(i);

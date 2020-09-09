@@ -6,7 +6,7 @@ function q = actuator2arcparams(tubes, acts)
 %       p: (m) translation
 %       theta: (rad) rotation
 %  OUTPUT
-%   q  = [2Nx3xN] matrix of arc parameters for each
+%   q  = [2N-1x3xN] matrix of arc parameters for each
 %       rows: 2N-1, number of deformed sections (including straight)
 %       cols: 3, actuator variables [kappa, theta, trans]
 %       sheets: N, each tube
