@@ -5,11 +5,16 @@ classdef Precurved < Robot
     %   Original Author: Jesse F d'Almeida <jfdalmeida@wpi.edu>
     
     properties
-        % Physical Endoscope
-        OD                  % (m) outer diameter of endoscope
+        % Physical
+        OD                  % (m) outer diameter
+        ID                  % (m) inner diameter
         precurve            % (1/m) precurved section curvature
         Ls                  % (m) length of straight section
         Lc                  % (m) length of curved section
+
+        % Material Properties
+        E = 80e9            % (pa) Youngs Modulus (from wiki avg of austenite)
+        I                   % cross sectional moment of inertia
         
         % Arc Parameters for forward kinematics
         kappa               % (1/m) curvature
@@ -25,16 +30,20 @@ classdef Precurved < Robot
     end
     
     methods
-        function self = Precurved(OD, precurve, Ls, Lc)
+        function self = Precurved(OD, ID, precurve, Ls, Lc)
             % Class constructor
             %   only parameters that should change are current orientation
             
             self@Robot(2);      % parent class constructor, only 2 links: straight section and curved section
         
             self.OD = OD;
+            self.ID = ID;
             self.precurve = precurve;
             self.Ls = Ls;
             self.Lc = Lc;
+            
+            self.I = pi*(OD^2-ID^2)/4;
+            
         end
         
         function self = fwkine(self, q, baseTransform)
@@ -44,9 +53,9 @@ classdef Precurved < Robot
             %  joint variables are unknown
             %
             %   q = [theta, dz, k]    arc parameters of configuration
+            %   k [1/m] = curvature   
             %   theta [rad] = base rotation
             %   dz [m] = advancement
-            %   k [1/m] = curvature   *optional for deformation* 
             %  baseTransform [4x4 matrix] *optional* homogenous transformation matrix
             %   where the endoscope begins
             
@@ -56,17 +65,13 @@ classdef Precurved < Robot
             end
             
             % parse the input q
-            base_rotation = q(1);
-            dz = q(2);
-            if length(q) == 2
-                curvature = self.precurve;
-            else
-                curvature = q(3);
-            end
+            curvature = q(:,1);
+            base_rotation = q(:,2);
+            dz = q(:,3);
             
             % configurations for each section:
             %(base translations, curved, straight tip)
-            kappa_list = [0 curvature];
+            kappa_list = [0 curvature'];
             s_list = [dz self.Lc];
             theta_list = [base_rotation 0];
             
