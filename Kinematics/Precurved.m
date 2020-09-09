@@ -43,42 +43,70 @@ classdef Precurved < Robot
             self.Lc = Lc;
             
             self.I = pi*(OD^2-ID^2)/4;
-            
         end
+        
+        function q = deformation(self, ks, arcs, dz)
+            % Maps the results of elastic deformation to a standard
+            % configuration
+            %   N = numSections - 1
+            % INPUTS
+            %   ks   = [Nx1] (1/m) array of curvatures
+            %   arcs = [Nx1] (m) array of section arc lengths
+            %   thetas = [Nx1] (rad) array of rotations
+            %   dz   = (m) initial straight translation
+            % OUTPUT
+            %   q = [kappa theta s] arc parameters
+            
+            numCurves = length(ks);
+            
+            q = zeros(numCurves + 1, 3);
+            
+            q(1,:) = [0 0 dz];
+            
+            for i = 1:numCurves
+                q(i+1,:) = [ks(i) 0 arcs(i)];
+            end
+        end
+        
         
         function self = fwkine(self, q, baseTransform)
             % Maps joint variable to arc parameters.
             %  fwkine(q, baseTransform) sets attributes pose and transform
-            %  For now, assumes knowledge of arc parameters, since current
-            %  joint variables are unknown
             %
-            %   q = [theta, dz, k]    arc parameters of configuration
-            %   k [1/m] = curvature   
-            %   theta [rad] = base rotation
-            %   dz [m] = advancement
-            %  baseTransform [4x4 matrix] *optional* homogenous transformation matrix
-            %   where the endoscope begins
-            
+            %   q = [k, theta, dz]  matric of arc parameters of configuration
+            %   k (1/m) = curvature   
+            %   theta (rad) = rotations
+            %   s (m) = lengths of each section
+            %  baseTransform [4x4 matrix] *optional* initial transformation   
+            %
             % default baseTransform of none
             if ~exist('baseTransform', 'var')
                 baseTransform = eye(4);
             end
             
+            numSections = size(q,2);
+            
             % parse the input q
             curvature = q(:,1);
-            base_rotation = q(:,2);
-            dz = q(:,3);
+            rot = q(:,2);
+            s = q(:,3);
             
             % configurations for each section:
             %(base translations, curved, straight tip)
-            kappa_list = [0 curvature'];
-            s_list = [dz self.Lc];
-            theta_list = [base_rotation 0];
+            kappa_list = curvature';
+            s_list = s';
+            theta_list = rot';
             
             % configurations
-            base = [kappa_list(1) s_list(1) theta_list(1)];     % initial straight translation
-            curve = [kappa_list(2) s_list(2) theta_list(2)];    % curved section
-            c = [base curve];
+            c = [];
+            for i = 1:numSections+1
+                newC = [kappa_list(1) s_list(1) theta_list(1)];
+                c = [c newC];
+            end
+            
+%             base = [kappa_list(1) s_list(1) theta_list(1)];     % initial straight translation
+%             curve = [kappa_list(2) s_list(2) theta_list(2)];    % curved section
+%             c = [base curve];
             
             self.kappa = kappa_list;
             self.s = s_list;
