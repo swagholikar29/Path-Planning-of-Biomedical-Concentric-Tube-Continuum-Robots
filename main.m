@@ -3,20 +3,28 @@ close all, clear, clc
 addpath('kinematics');
 
 %% CREATE PRECURVED TUBES
+nTubes = 2;
+ODs = [5e-3 3e-3 2e-3];
+IDs = ODs - 1e-3;
+precurves = [15 30 90];
+Ls = 30e-3;
+Lc = 30e-3;
 
-outer = Precurved(5e-3, 4e-3, 15, 30e-3, 30e-3);
-q1 = [0 10e-3]; 
+for i = 1:nTubes
+    tubes(i) = Precurved(ODs(i), IDs(i), precurves(i), Ls, Lc);
+    tubes(i).fwkine(deformation(tubes(i).precurve, Lc, 10e-3));
+end
 
-inner = Precurved(2e-3, 1e-3, 50, 30e-3, 30e-3);
-q2 = [0 10e-3];
-tubes = [outer inner];
+% plot the tubes individually
+plotTubes(tubes);
 
-k = inplane_bending(tubes)
-
-q1 = [k q1 0];
-q2 = [k q2 0];
-outer.fwkine(q1);
-inner.fwkine(q2);
+% deformed together 
+acts = [10e-3 0; 
+        30e-3 0];
+q = actuator2arcparams(tubes, acts)
+for i = 1:nTubes
+    tubes(i).fwkine(q(:,:,i));
+end
 
 %% PLOT
 plotTubes(tubes);

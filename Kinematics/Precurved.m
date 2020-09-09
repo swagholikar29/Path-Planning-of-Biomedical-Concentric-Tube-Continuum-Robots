@@ -43,43 +43,45 @@ classdef Precurved < Robot
             self.Lc = Lc;
             
             self.I = pi*(OD^2-ID^2)/4;
-            
         end
         
         function self = fwkine(self, q, baseTransform)
             % Maps joint variable to arc parameters.
             %  fwkine(q, baseTransform) sets attributes pose and transform
-            %  For now, assumes knowledge of arc parameters, since current
-            %  joint variables are unknown
             %
-            %   q = [theta, dz, k]    arc parameters of configuration
-            %   k [1/m] = curvature   
-            %   theta [rad] = base rotation
-            %   dz [m] = advancement
-            %  baseTransform [4x4 matrix] *optional* homogenous transformation matrix
-            %   where the endoscope begins
-            
+            %   q = [k, theta, dz]  matric of arc parameters of configuration
+            %   k (1/m) = curvature   
+            %   theta (rad) = rotations
+            %   s (m) = lengths of each section
+            %  baseTransform [4x4 matrix] *optional* initial transformation   
+            %
             % default baseTransform of none
             if ~exist('baseTransform', 'var')
                 baseTransform = eye(4);
             end
             
+            numSections = size(q,1);
+            self.nLinks = numSections;
+            
             % parse the input q
             curvature = q(:,1);
-            base_rotation = q(:,2);
-            dz = q(:,3);
+            rot = q(:,2);
+            s = q(:,3);
             
             % configurations for each section:
             %(base translations, curved, straight tip)
-            kappa_list = [0 curvature'];
-            s_list = [dz self.Lc];
-            theta_list = [base_rotation 0];
+            kappa_list = curvature';
+            s_list = s';
+            theta_list = rot';
             
-            % configurations
-            base = [kappa_list(1) s_list(1) theta_list(1)];     % initial straight translation
-            curve = [kappa_list(2) s_list(2) theta_list(2)];    % curved section
-            c = [base curve];
+            % add parameters to a single array for the fwkin
+            c = [];
+            for i = 1:numSections
+                newC = [kappa_list(i) s_list(i) theta_list(i)];
+                c = [c newC];
+            end
             
+            % store values
             self.kappa = kappa_list;
             self.s = s_list;
             self.theta = theta_list;
