@@ -14,7 +14,8 @@ classdef Precurved < Robot
 
         % Material Properties
         E = 70e6            % (pa) Youngs Modulus (from wiki avg of austenite)
-        I                   % cross sectional moment of inertia
+        I                   % cross sectional moment of inertia of tube
+        Poisson = 0.35      % Poisson's ratio for Nitinol
         
         % Arc Parameters for forward kinematics
         kappa               % (1/m) curvature
@@ -42,7 +43,7 @@ classdef Precurved < Robot
             self.Ls = Ls;
             self.Lc = Lc;
             
-            self.I = (pi/64)*(OD^2-ID^2);
+            self.I = (pi/64)*(OD^4-ID^4);
         end
         
         function self = fwkine(self, arcs, baseTransform)
@@ -125,11 +126,10 @@ classdef Precurved < Robot
                     % and of length s
                     bend_angle = s(ii)*kappa(ii);
                     arcAng = linspace(0, bend_angle, s(ii)*ptsPerM);
-                    baseAng = linspace(0, phi(ii), s(ii)*ptsPerM);
                     
                     % points of the curve 
-                    pts = radius(ii) .* [(1-cos(arcAng)).*cos(baseAng);
-                                     (1-cos(arcAng)).*sin(baseAng);
+                    pts = radius(ii) .* [(1-cos(arcAng)).*cos(phi(ii));
+                                     (1-cos(arcAng)).*sin(phi(ii));
                                      sin(arcAng);
                                      ones(1, length(arcAng)) / radius(ii)];
                     
