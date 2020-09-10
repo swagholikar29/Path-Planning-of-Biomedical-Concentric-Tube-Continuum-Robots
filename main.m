@@ -7,27 +7,23 @@ nTubes = 3;
 ODs = [5e-3 3e-3 2e-3];
 IDs = ODs - 1e-3;
 precurves = [30 90 90];
-Ls = 30e-3;
+Ls = 100e-3;
 Lc = 30e-3;
 
+% make the precurved tubes
 for i = 1:nTubes
     tubes(i) = Precurved(ODs(i), IDs(i), precurves(i), Ls, Lc);
-%     tubes(i).fwkine([0 0 0; tubes(i).precurve 0 Lc]);
 end
 
-% plot the tubes individually
-% plotTubes(tubes);
-
 % deformed together 
-acts = [0e-3 deg2rad(90); 
-        25e-3 deg2rad(30);
-        40e-3 deg2rad(90)];
+%      p: trans alpha: rotation
+q = [0e-3    deg2rad(0); 
+        25e-3   deg2rad(30);
+        40e-3   deg2rad(90)];
 
-% acts = [0e-3 deg2rad(15); 
-%         15e-3 deg2rad(90)];
-q = actuator2arcparams(tubes, acts)
+arcs = joint2arcparams(tubes, q)
 for i = 1:nTubes
-    tubes(i).fwkine(q(:,:,i));
+    tubes(i).fwkine(arcs(:,:,i));
 end
 
 %% PLOT

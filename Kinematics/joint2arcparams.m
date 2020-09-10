@@ -1,22 +1,22 @@
-function q = actuator2arcparams(tubes, acts)
+function arcs = joint2arcparams(tubes, q)
 %ACTUATOR2ARCPARAMS converts actuator variables of tubes to arc parameters
 %  INPUTS
 %   tubees = [N]   array of Precurved tube objects
-%   acts   = [Nx2] matrix of actuator variables [p theta]
+%   q      = [Nx2] matrix of actuator variables [p theta]
 %       p: (m) translation
-%       theta: (rad) rotation
+%       alpha: (rad) rotation
 %  OUTPUT
 %   q  = [2Nx3xN] matrix of arc parameters for each
 %       rows: 2N, number of deformed sections (including initial straight)
-%       cols: 3, actuator variables [kappa, theta, trans]
+%       cols: 3, actuator variables [kappa, phi, s]
 %       sheets: N, each tube
 
 numTubes = length(tubes);
 numOverlaps = 2*numTubes;
 
 % break down
-baseTrans = acts(:,1);
-baseRot = acts(:,2);
+p = q(:,1);
+alpha = q(:,2);
 
 % get curved section lengths
 d = zeros(1, numTubes);
@@ -31,7 +31,6 @@ isCurved = zeros(numOverlaps, numTubes);
 % TODO: make algorithmic
 % TODO: replace 'isCurved' with function that uses the tube lengths to
 %       calculate
-p = baseTrans; 
 
 % init overlap lengths
 Ls = zeros(1, numOverlaps);
@@ -54,41 +53,36 @@ end
 %% get emergent curvatures for each overlap section
 
 newK = zeros(numOverlaps, 1);  % init new ks for each overlapped section
-newTheta = zeros(numOverlaps, 1);
+phi = zeros(numOverlaps, 1);
 for  link = 1:numOverlaps
-    [newK(link), newTheta(link)] = inplane_bending(tubes, baseRot, isCurved(link,:));
+    [newK(link), phi(link)] = inplane_bending(tubes, alpha, isCurved(link,:));
 end
 
-newTheta(end+1) = newTheta(end);
-newTheta
-
-%% Create q of arc parameters
-q = zeros(numOverlaps, 3, numTubes);
+%% Create arc parameters
+arcs = zeros(numOverlaps, 3, numTubes);
 for t = 1:numTubes
     
-    curr_theta = 0;     % keeps track of current absolute theta
+    curr_phi = 0;     % keeps track of current angle
     for link = 1:numOverlaps
         k = newK(link);
-        abs_theta = newTheta(link);
+        abs_phi = phi(link);
         s = Ls(link);
         
         % update relative theta
-        if curr_theta ~= abs_theta
-            rel_theta = abs_theta - curr_theta;
-            curr_theta = curr_theta + rel_theta;
+        if curr_phi ~= abs_phi
+            rel_phi = abs_phi - curr_phi;
+            curr_phi = curr_phi + rel_phi;
         else
-            rel_theta = 0;
+            rel_phi = 0;
         end
         
         % if the section ends
         if isCurved(link,t) == -1 || s == 0
-%             disp('skip')
             k = 0;
             s = 0;
         end
         
-%         [k rel_theta s]
-        q(link,:,t) = [k rel_theta s];
+        arcs(link,:,t) = [k rel_phi s];
     end
 end
 end
