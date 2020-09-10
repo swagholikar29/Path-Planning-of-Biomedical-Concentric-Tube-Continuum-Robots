@@ -42,7 +42,8 @@ classdef Precurved < Robot
             self.Ls = Ls;
             self.Lc = Lc;
             
-            self.I = pi*(OD^2-ID^2)/4;
+%             self.I = pi*(OD^2-ID^2)/4;
+            self.I = 10;
         end
         
         function self = fwkine(self, q, baseTransform)
@@ -71,8 +72,8 @@ classdef Precurved < Robot
             % configurations for each section:
             %(base translations, curved, straight tip)
             kappa_list = curvature';
-            s_list = s';
             theta_list = rot';
+            s_list = s';
             
             % add parameters to a single array for the fwkin
             c = [];
@@ -106,6 +107,7 @@ classdef Precurved < Robot
             kappa = self.kappa;
             radius = 1 ./ kappa;
             s = self.s;
+            theta = self.theta;
             
             backbone = P(:,1);     % 3d points of center
             
@@ -129,13 +131,14 @@ classdef Precurved < Robot
                     % generate points along an arc of constant curvature
                     % and of length s
                     bend_angle = s(ii)*kappa(ii);
-                    theta = linspace(0, bend_angle, s(ii)*ptsPerM);
+                    arcAng = linspace(0, bend_angle, s(ii)*ptsPerM);
+                    baseAng = linspace(0, theta(ii), s(ii)*ptsPerM);
                     
                     % points of the curve 
-                    pts = radius(ii) .* [(1-cos(theta));
-                                     zeros(1, length(theta));
-                                     sin(theta);
-                                     ones(1, length(theta)) / radius(ii)];
+                    pts = radius(ii) .* [(1-cos(arcAng)).*cos(baseAng);
+                                     (1-cos(arcAng)).*sin(baseAng);
+                                     sin(arcAng);
+                                     ones(1, length(arcAng)) / radius(ii)];
                     
                     backbone = [backbone ...
                         applytransform(pts(1:3,2:end), T(:,:,ii))]; 
