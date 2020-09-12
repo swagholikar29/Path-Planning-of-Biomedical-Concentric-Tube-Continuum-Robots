@@ -15,13 +15,11 @@ for i = 1:nTubes
     tubes(i) = Precurved(ODs(i), IDs(i), precurves(i), Ls, Lc);
 end
 
-plotTubes(tubes);
-
 % Joint Parameters of the tube
 %  p: trans  alpha: rotation
 q = [0e-3    deg2rad(0); 
      0e-3   deg2rad(0);
-     40e-3   deg2rad(0)];
+     0e-3   deg2rad(0)];
 
 arcs = joint2arcparams(tubes, q)
 for i = 1:nTubes
