@@ -6,24 +6,24 @@ addpath('kinematics');
 nTubes = 2;
 ODs = [5e-3 3e-3 2e-3];
 IDs = ODs - 1e-3;
-precurves = [15 30 90];
-Ls = 30e-3;
+precurves = [15 90 15];
+Ls = 100e-3;
 Lc = 30e-3;
 
+% make the precurved tubes
 for i = 1:nTubes
     tubes(i) = Precurved(ODs(i), IDs(i), precurves(i), Ls, Lc);
-    tubes(i).fwkine(deformation(tubes(i).precurve, Lc, 10e-3));
 end
 
-% plot the tubes individually
-plotTubes(tubes);
+% Joint Parameters of the tube
+%  p: trans  alpha: rotation
+q = [0e-3    deg2rad(0); 
+     0e-3   deg2rad(0);
+     0e-3   deg2rad(0)];
 
-% deformed together 
-acts = [10e-3 0; 
-        30e-3 0];
-q = actuator2arcparams(tubes, acts)
+arcs = joint2arcparams(tubes, q)
 for i = 1:nTubes
-    tubes(i).fwkine(q(:,:,i));
+    tubes(i).fwkine(arcs(:,:,i));
 end
 
 %% PLOT

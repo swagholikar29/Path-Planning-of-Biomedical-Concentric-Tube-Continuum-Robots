@@ -13,12 +13,13 @@ classdef Precurved < Robot
         Lc                  % (m) length of curved section
 
         % Material Properties
-        E = 80e9            % (pa) Youngs Modulus (from wiki avg of austenite)
-        I                   % cross sectional moment of inertia
+        E = 70e6            % (pa) Youngs Modulus (from wiki avg of austenite)
+        I                   % cross sectional moment of inertia of tube
+        Poisson = 0.35      % Poisson's ratio for Nitinol
         
         % Arc Parameters for forward kinematics
         kappa               % (1/m) curvature
-        theta               % (rad) base rotation
+        phi               % (rad) base rotation
         s                   % (m) arc length
         dz                  % (m) advancement
         
@@ -42,17 +43,17 @@ classdef Precurved < Robot
             self.Ls = Ls;
             self.Lc = Lc;
             
-            self.I = pi*(OD^2-ID^2)/4;
+            self.I = (pi/64)*(OD^4-ID^4);
         end
         
-        function self = fwkine(self, q, baseTransform)
-            % Maps joint variable to arc parameters.
+        function self = fwkine(self, arcs, baseTransform)
+            % Formats arc parameters to make transformations
             %  fwkine(q, baseTransform) sets attributes pose and transform
             %
-            %   q = [k, theta, dz]  matric of arc parameters of configuration
-            %   k (1/m) = curvature   
-            %   theta (rad) = rotations
-            %   s (m) = lengths of each section
+            %   arc = [k, theta, dz]  matric of arc parameters of configuration
+            %       k (1/m) = curvature   
+            %       phi (rad) = rotations
+            %       s (m) = lengths of each section
             %  baseTransform [4x4 matrix] *optional* initial transformation   
             %
             % default baseTransform of none
@@ -60,31 +61,25 @@ classdef Precurved < Robot
                 baseTransform = eye(4);
             end
             
-            numSections = size(q,1);
+            numSections = size(arcs,1);
             self.nLinks = numSections;
             
             % parse the input q
-            curvature = q(:,1);
-            rot = q(:,2);
-            s = q(:,3);
-            
-            % configurations for each section:
-            %(base translations, curved, straight tip)
-            kappa_list = curvature';
-            s_list = s';
-            theta_list = rot';
+            kappa_list = arcs(:,1)';
+            phi_list = arcs(:,2)';
+            s_list = arcs(:,3)';
             
             % add parameters to a single array for the fwkin
             c = [];
             for i = 1:numSections
-                newC = [kappa_list(i) s_list(i) theta_list(i)];
+                newC = [kappa_list(i) s_list(i) phi_list(i)];
                 c = [c newC];
             end
             
             % store values
             self.kappa = kappa_list;
             self.s = s_list;
-            self.theta = theta_list;
+            self.phi = phi_list;
             
             % forward kinematics based on configuration
             [P,T] = fwkine@Robot(self, c, baseTransform);
@@ -106,6 +101,7 @@ classdef Precurved < Robot
             kappa = self.kappa;
             radius = 1 ./ kappa;
             s = self.s;
+            phi = self.phi;
             
             backbone = P(:,1);     % 3d points of center
             
@@ -129,13 +125,13 @@ classdef Precurved < Robot
                     % generate points along an arc of constant curvature
                     % and of length s
                     bend_angle = s(ii)*kappa(ii);
-                    theta = linspace(0, bend_angle, s(ii)*ptsPerM);
+                    arcAng = linspace(0, bend_angle, s(ii)*ptsPerM);
                     
                     % points of the curve 
-                    pts = radius(ii) .* [(1-cos(theta));
-                                     zeros(1, length(theta));
-                                     sin(theta);
-                                     ones(1, length(theta)) / radius(ii)];
+                    pts = radius(ii) .* [(1-cos(arcAng)).*cos(phi(ii));
+                                     (1-cos(arcAng)).*sin(phi(ii));
+                                     sin(arcAng);
+                                     ones(1, length(arcAng)) / radius(ii)];
                     
                     backbone = [backbone ...
                         applytransform(pts(1:3,2:end), T(:,:,ii))]; 
