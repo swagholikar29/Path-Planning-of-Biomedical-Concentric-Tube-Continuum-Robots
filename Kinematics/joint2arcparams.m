@@ -32,23 +32,25 @@ isCurved = zeros(numOverlaps, numTubes);
 % TODO: replace 'isCurved' with function that uses the tube lengths to
 %       calculate
 
-% init overlap lengths
-Ls = zeros(1, numOverlaps);
-Ls(1) = p(1);
-Ls(2) = p(2) - p(1);
-Ls(3) = d(1) + p(1) - p(2);
+[Ls isCurved] = calcLinkLengths(tubes, p)
 
-if numTubes == 2
-    Ls(4) = d(2) - d(1) + p(2) - p(1);
-    isCurved = [0 0; 1 0; 1 1; -1 1];
-    
-elseif numTubes == 3
-    Ls(4) = p(3) - p(1) - d(1);
-    Ls(5) = d(2) + p(2) - p(3);
-    Ls(6) = p(3) + d(3) - p(2) - d(2);
-    
-    isCurved = [0 0 0; 1 0 0; 1 1 0; -1 1 0; -1 1 1; -1 -1 1];
-end
+% init overlap lengths
+% Ls = zeros(1, numOverlaps);
+% Ls(1) = p(1);
+% Ls(2) = p(2) - p(1);
+% Ls(3) = d(1) + p(1) - p(2);
+% 
+% if numTubes == 2
+%     Ls(4) = d(2) - d(1) + p(2) - p(1);
+%     isCurved = [0 0; 1 0; 1 1; -1 1];
+%     
+% elseif numTubes == 3
+%     Ls(4) = p(3) - p(1) - d(1);
+%     Ls(5) = d(2) + p(2) - p(3);
+%     Ls(6) = p(3) + d(3) - p(2) - d(2);
+%     
+%     isCurved = [0 0 0; 1 0 0; 1 1 0; -1 1 0; -1 1 1; -1 -1 1];
+% end
     
 %% get emergent curvatures for each overlap section
 
