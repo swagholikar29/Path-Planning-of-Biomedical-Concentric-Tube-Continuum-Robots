@@ -29,5 +29,6 @@ end
 
 %% PLOT
 plotTubes(tubes);
+plotAllTubes(tubes, q);
 
 

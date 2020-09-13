@@ -7,7 +7,7 @@ function h = plotTubes(tubes)
 %       h: handles for plots
 
 plotBackbone = false;
-plotIndividualDeformations = truegib;
+plotIndividualDeformations = true;
 
 
 numTubes = length(tubes);
@@ -44,6 +44,7 @@ for i = 1:numTubes
     xlabel('X (m)');
     ylabel('Y (m)');
     zlabel('Z (m)');
+    title('Concentric Precurved Tubes with Deformation');
 end
 
 %% on separate figures plot the backbone points of each tube 
@@ -51,7 +52,6 @@ end
 if plotBackbone
     for i = 1:numTubes
         figure
-        % subplot(2,3,3);
         hold on;
         b = tubes(i).robotModel.backbone;
         p = tubes(i).pose;
@@ -68,9 +68,11 @@ if plotBackbone
 end
 
 %% Plot individually deformed tubes
+figure('Name', 'Individual Deformed Tubes');
 if plotIndividualDeformations
     for i = 1:numTubes
-        figure('Name', 'Precurved Tubes');
+        subplot(1,numTubes,i);
+        
         model = tubes(i).makePhysicalModel();
     
         % mesh model of the tube
@@ -87,7 +89,7 @@ if plotIndividualDeformations
         xlabel('X (m)');
         ylabel('Y (m)');
         zlabel('Z (m)');
+        title(['Deformed Tube ' num2str(i)]);
     end
-
 end
 
