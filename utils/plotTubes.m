@@ -6,22 +6,26 @@ function h = plotTubes(tubes)
 %   OUTPUT
 %       h: handles for plots
 
-plotBackbone = 0;
+plotBackbone = false;
+plotIndividualDeformations = false;
+
 
 numTubes = length(tubes);
 h = zeros(1,numTubes);
 colors = distinguishable_colors(numTubes);
 
+%% Plot Entire Model
 figure('Name', 'Precurved Tubes');
-% subplot(2,3, [1 2 4 5]);
 hold on
 
 for i = 1:numTubes
     model = tubes(i).makePhysicalModel();
     
+    % mesh model of the tube
     h(i) = surf(model.surface.X, model.surface.Y, model.surface.Z,...
         'FaceColor', colors(i,:));
     
+    % create a triad (coord frame) for the transformations
     trans = tubes(i).transformations;
     for jj = 1:size(trans,3)
         triad('Matrix', trans(:,:,jj), 'scale', 5e-3);
@@ -40,12 +44,14 @@ for i = 1:numTubes
     xlabel('X (m)');
     ylabel('Y (m)');
     zlabel('Z (m)');
+    title('Concentric Precurved Tubes with Deformation');
 end
 
+%% on separate figures plot the backbone points of each tube 
+% (for debugging)
 if plotBackbone
     for i = 1:numTubes
         figure
-        % subplot(2,3,3);
         hold on;
         b = tubes(i).robotModel.backbone;
         p = tubes(i).pose;
@@ -56,10 +62,34 @@ if plotBackbone
             triad('Matrix', trans(:,:,jj), 'scale', 5e-3);
         end
 
-
         grid on;
         axis equal;
     end
 end
+
+%% Plot individually deformed tubes
+if plotIndividualDeformations
+figure('Name', 'Individual Deformed Tubes');
+    for i = 1:numTubes
+        subplot(1,numTubes,i);
+        
+        model = tubes(i).makePhysicalModel();
+    
+        % mesh model of the tube
+        h(i) = surf(model.surface.X, model.surface.Y, model.surface.Z,...
+            'FaceColor', colors(i,:));
+
+        axis('image');
+        view([-135 35]);
+        grid on;
+
+        camlight('headlight');
+        material('dull');
+        axis equal
+        xlabel('X (m)');
+        ylabel('Y (m)');
+        zlabel('Z (m)');
+        title(['Deformed Tube ' num2str(i)]);
+    end
 end
 

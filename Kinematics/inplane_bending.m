@@ -2,13 +2,13 @@ function [k, phi] = inplane_bending(tubes, theta, isCurved)
 %INPLANE_BENDING uses the elastic deformation formulas found in Webster2009
 %  to calculate the resulting curvature
 %  INPUTS
-%   tubes:  [N] array of Precurved tubes
-%   thetas: [N] array of base rotations
-%   isCurved: [N] optional array mapping sections that are curved
+%   tubes    = [N] array of Precurved tubes
+%   thetas   = [N] array of base rotations
+%   isCurved = [N] optional array mapping sections that are curved
 %       1 = curved, 0 = straight, -1 = skip
 %  OUTPUTS
-%   k:   curvature of links
-%   phi: rotation of links
+%   k   =  curvature of link
+%   phi =  rotation of link
 
 numTubes = length(tubes);
 
