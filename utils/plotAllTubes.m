@@ -2,7 +2,7 @@ function h = plotAllTubes(tubes, q)
 %PLOTALLTUBES plots meshes of all tubes without deformation
 %   Must run fwkine on all models before running this plotter
 %   INPUT
-%       tubes: array of Precurved objects
+%       tubes: [N] array of Precurved objects
 %   OUTPUT
 %       h: handles for plots
 numTubes = length(tubes);

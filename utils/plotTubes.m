@@ -7,7 +7,7 @@ function h = plotTubes(tubes)
 %       h: handles for plots
 
 plotBackbone = false;
-plotIndividualDeformations = true;
+plotIndividualDeformations = false;
 
 
 numTubes = length(tubes);
@@ -68,8 +68,8 @@ if plotBackbone
 end
 
 %% Plot individually deformed tubes
-figure('Name', 'Individual Deformed Tubes');
 if plotIndividualDeformations
+figure('Name', 'Individual Deformed Tubes');
     for i = 1:numTubes
         subplot(1,numTubes,i);
         
