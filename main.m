@@ -5,12 +5,12 @@ addpath('kinematics');
 %% CREATE PRECURVED TUBES
 
 % parameters for generating tubes
-nTubes = 3;                     % number of tubes
-ODs = [5e-3 4e-3 3e-3];         % (m) outer diameters 
-IDs = ODs - 1e-3;               % (m) inner diameters
-precurves = [15 50 70];         % (1/m) curvatures
-Ls = 100e-3;                    % (m) length of straight section
-Lc = 30e-3;                     % (m) length of curved section
+nTubes = 2;                     % number of tubes
+ODs = [3.25e-3 2e-3];         % (m) outer diameters 
+IDs = [2.45e-3 1.2e-3];               % (m) inner diameters
+precurves = [30 50];         % (1/m) curvatures
+Ls = 50-3;                    % (m) length of straight section
+Lc = 50e-3;                     % (m) length of curved section
 
 % make the precurved tubes
 for i = 1:nTubes
@@ -23,11 +23,10 @@ end
 % Joint Parameters of the tube
 % translation  rotation
 q = [0e-3   deg2rad(0);        % outermost tube
-     10e-3   deg2rad(30);
-     20e-3   deg2rad(90)];     % innermost tube
+     20e-3   deg2rad(30)];     % innermost tube
 
 % calculate forward kinematics
-arcs = joint2arcparams(tubes, q);   % calcs arc parameters of the deformation
+arcs = joint2arcparams(tubes, q)   % calcs arc parameters of the deformation
 for i = 1:nTubes
     tubes(i).fwkine(arcs(:,:,i));
 end
