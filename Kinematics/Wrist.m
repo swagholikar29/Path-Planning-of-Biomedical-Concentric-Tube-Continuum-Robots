@@ -23,7 +23,9 @@ classdef Wrist < Robot
         arcLength           % Arc length of the wrist links
         robotModel          % A model of the robot
         
-        ybar
+        ybar    % neutral bending plane
+        Ai      
+        Ao
         theta_max
         deltal_max
     end
@@ -60,6 +62,8 @@ classdef Wrist < Robot
                 Ai = ( (ri ^ 2) * ( phii - sin(phii))) / 2;
                 
                 self.ybar(ii) = (ybaro * Ao - ybari * Ai) / (Ao - Ai);
+                self.Ao(ii) = Ao;
+                self.Ai(ii) = Ai;
                 
                 % Calculate the maximum bending for this cutout
                 self.theta_max(ii) = h(ii) / (ro + self.ybar(ii));
