@@ -10,13 +10,13 @@ params = [];
 
 counti = 1;
 countj = 1;
-x = .001: .0001: .03;
+x = 10;
 lenX = length(x);
 
 rs = cell(lenX);
 for i = x
-    [r, k, kj, theta, thetaj, s] = get_Curvature(i);
-    params(counti, :) = [k, kj, theta, thetaj, s];
+    [r, k, kj, theta, thetaj, s, Emin, sigma] = get_Curvature(i);
+    params(counti, :) = [k, kj, theta, thetaj, s, Emin, sigma];
     rs{counti} = r;
 
     counti = counti + 1;
@@ -24,10 +24,10 @@ end
 
 figure
 subplot(121)
-plot(x, params(:,1))
+plot(x, params(:,6))
 grid on;
 title('Curvature of the Wrist')
-xlabel('max strain')
+xlabel('cut section (mm)')
 ylabel('curvature (1/m)');
 
 %% Plot wrist at max
@@ -44,6 +44,8 @@ deltaL = h - 2 * (1 / maxk - robot.ID/2) * sin((maxk * h) / (2 * (1 + ybar * max
 disp(['Min bending radius: ' num2str(maxBendingRadius)  ' mm ']);
 disp(['Max curvature ' num2str(maxk)  ' 1/m']);
 disp(['Length of bending section: ' num2str(sAtMax*1e3)  ' mm']);
+disp(['Min Modulus of resin: ' num2str(params(idx,6)* 1e-9)  ' GPa']);
+disp(['Max strain of resin: ' num2str(params(idx,7))  ' GPa']);
 disp(['Best param: ' num2str(x(idx))  ' mm']);
 q = [deltaL, 0, 10e-3];
 robot.fwkine(q, eye(4));
