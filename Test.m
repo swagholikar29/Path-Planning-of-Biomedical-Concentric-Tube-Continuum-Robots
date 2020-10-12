@@ -10,7 +10,7 @@ params = [];
 
 counti = 1;
 countj = 1;
-x = 10;
+x = .1:.01:.85;
 lenX = length(x);
 
 rs = cell(lenX);

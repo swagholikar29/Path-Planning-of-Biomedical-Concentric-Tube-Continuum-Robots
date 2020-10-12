@@ -2,13 +2,13 @@
 function [robot, k, kj, theta, thetaj, s, Emin, notch_stress] = get_Curvature(p)
     % stainless steel 304 material properties
       % strain at yield
-    yield = 290e6;
-    modulus = 193e9;
-    emax = yield/modulus; 
+%     yield = 290e6;
+%     modulus = 193e9;
+%     emax = yield/modulus; 
     % pla
-%     yield = 43e6;
-%     modulus = 4.1e9;
-%     emax = yield/modulus;   % strain at yield
+    yield = 43e6;
+    modulus = 4.1e9;
+    emax = yield/modulus;   % strain at yield
 
     % Aluminum
 %     yield = 276e6;
@@ -20,21 +20,21 @@ function [robot, k, kj, theta, thetaj, s, Emin, notch_stress] = get_Curvature(p)
 %     emax = 0.08;
 
     % tube params
-    OD = 2e-3;
-    ID = 1.6e-3;
+    OD = 7e-3;
+    ID = 5e-3;
     ro = OD/2;      % radius of outer wall
     ri = ID/2;      % radius of inner wall
     n = 15;          % number of cutouts
-    g = OD * .799;      % depth of cut based on percent of diameter cut
-    u = 2 * 1e-3;   % height of uncut section
-    h = p * 1e-3;   % height of cut section
+    g = OD * p;      % depth of cut based on percent of diameter cut
+    u = 5 * 1e-3;   % height of uncut section
+    h = 5 * 1e-3;   % height of cut section
     
     % assemble wrist
     cutouts.w = g * ones(1,n); % [m]
     cutouts.u = u * ones(1,n); % [m]
     cutouts.h = h * ones(1,n); % [m]
     cutouts.alpha = zeros(1,n);
-    robot = Wrist(OD, ID, n, cutouts);
+    robot = Wrist(ID, OD, n, cutouts);
     
     ybar = robot.ybar(1);   % all ybars are the same for each notch
     
