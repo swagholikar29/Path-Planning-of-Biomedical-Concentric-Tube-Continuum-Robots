@@ -6,23 +6,24 @@ close all; clear all; clc;
 addpath('images');
 
 %% Tube Parameters
-OD = 3;     % (mm) outer diameter
+OD = 2;     % (mm) outer diameter
 Lc = 50;    % (mm) curved section length
 
 %% Fix Image
-img_path = 'Tube_3mm/T1_3mm.jpg';
+img_path = 'Tube_2mm/T5_2mm.jpg';
+% img_path = 'test.jpg';
 img = imread(img_path);        % load image
 [bw, rgb] = maskBlackTubes(img);    % mask out not black
 bw2 = bwareaopen(bw, 2000);
 bw3 = imfill(bw2, 'hole');
 bw3 = imfill(bw3, 'hole');
-% figure
-% subplot(131)
-% imshow(bw)
-% subplot(132)
-% imshow(bw2)
-% subplot(133)
-% imshow(bw3)
+figure
+subplot(131)
+imshow(bw)
+subplot(132)
+imshow(bw2)
+subplot(133)
+imshow(bw3)
 
 %% Get bottom edge of tube
 %indicies of white points 
@@ -31,7 +32,7 @@ yi = -yi;
 
 ye = [];
 xe = [];
-delay = 20;
+delay = 30;
 count = 1;
 
 % iterate through all possible indices of X
