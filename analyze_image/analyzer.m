@@ -6,37 +6,42 @@ close all; clear all; clc;
 addpath('images');
 
 %% Tube Parameters
-OD = 2;     % (mm) outer diameter
+OD = 3;     % (mm) outer diameter
 Lc = 50;    % (mm) curved section length
 
 %% Fix Image
-img_path = 'Tube_2mm/T5_2mm.jpg';
+img_path = 'Nylon/Nylon_Tube_3mm/T5_3mm.jpg';
 % img_path = 'test.jpg';
 img = imread(img_path);        % load image
+img = imrotate(img, 90);
 [bw, rgb] = maskBlackTubes(img);    % mask out not black
-bw2 = bwareaopen(bw, 2000);
+bw2 = bwareaopen(bw, 200000);
 bw3 = imfill(bw2, 'hole');
 bw3 = imfill(bw3, 'hole');
-figure
-subplot(131)
-imshow(bw)
-subplot(132)
-imshow(bw2)
-subplot(133)
-imshow(bw3)
+
+% Plot masked images
+if false
+    figure
+    subplot(131)
+    imshow(bw)
+    subplot(132)
+    imshow(bw2)
+    subplot(133)
+    imshow(bw3)
+end
 
 %% Get bottom edge of tube
-%indicies of white points 
-[yi, xi] = find(bw3);
-yi = -yi;
+
+[yi, xi] = find(bw3);   % indicies of white points 
+yi = -yi;               % flip y 
 
 ye = [];
 xe = [];
-delay = 30;
+delay = 1;
 count = 1;
 
 % iterate through all possible indices of X
-for i = min(xi)+ 5:max(xi)
+for i = min(xi) + delay:max(xi)
     % skip if i is not in x
     if ~ismember(xi, i)
         continue;
@@ -47,17 +52,17 @@ for i = min(xi)+ 5:max(xi)
     if i > 1000 && length(ye) > delay+1
         % check curr y against previous ones with delay
         if abs(newy) < abs(ye(count - delay))
-            break;
+%             break;
         end
     end
-    
-%     lasty = newy;
     
     % store min y for inner side of tube
     xe(count) = i;
     ye(count) = min(yi(xi == i));
     count = count + 1;
 end
+
+
 
 
 %% ------ Calc R by first calculating bending angle
