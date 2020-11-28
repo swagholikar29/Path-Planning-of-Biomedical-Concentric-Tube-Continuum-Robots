@@ -14,7 +14,8 @@ classdef Precurved < Robot
 
         % Material Properties
 %         E = 70e6            % (Pa) Youngs Modulus (from wiki avg of austenite)
-        E = 1.83014e8       % (Pa) Young's Modulus for Bridge Nylon (https://taulman3d.com/bridge-nylon.html)
+%         E = 1.83014e8       % (Pa) Young's Modulus for Bridge Nylon (https://taulman3d.com/bridge-nylon.html)
+        E = 1700e6          % (Pa)
         I                   % cross sectional moment of inertia of tube
         Poisson = 0.35      % Poisson's ratio for Nitinol
         
