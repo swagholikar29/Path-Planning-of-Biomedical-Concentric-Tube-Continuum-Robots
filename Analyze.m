@@ -4,27 +4,28 @@ addpath('kinematics');
 
 %% CREATE PRECURVED TUBES
 % get resultant curvatures from list of tubes
-Rs = [71.78
-70.85
-73.95
-73.82
-73.03
-74.12
-77.13
-74.84
-77.32
-74.88
-75.29];
+Rs = [24.01
+25.26
+25.8
+26.4
+26.15
+26.74
+26.85
+26.91
+27.66
+27.45];
 
-Ks = 1 ./ (Rs * 1e-3)         % (1/m) curvatures
+Rs = [74.0065	26.4319];
+
+Ks = 1 ./ (Rs * 1e-3);         % (1/m) curvatures
 straight = zeros(length(Ks),1);
 
-Ks = [Ks straight];
+% Ks = [straight Ks];
 
 ODs = [4e-3 2e-3];         % (m) outer diameters 
 
-numRs = length(Rs);
-resultant_k = zeros(length(Ks),1);
+numRs = size(Ks,1);
+resultant_k = zeros(size(Ks,1),1);
 
 for i = 1:numRs
     % parameters for generating tubes
@@ -45,7 +46,7 @@ for i = 1:numRs
     % Joint Parameters of the tube
     % translation  rotation
     q = [0e-3   deg2rad(0);        % outermost tube
-         0e-3  deg2rad(0)];     % innermost tube
+         25e-3  deg2rad(180)];     % innermost tube
 
     % calculate forward kinematics
     arcs = joint2arcparams(tubes, q);   % calcs arc parameters of the deformation
@@ -58,3 +59,9 @@ for i = 1:numRs
     end
 end
 disp(resultant_k)
+
+
+
+%% PLOT
+plotTubes(tubes);           % regular plot of deformed tubes
+% plotAllTubes(tubes, q);     % uncomment for plot of each tube undeformed

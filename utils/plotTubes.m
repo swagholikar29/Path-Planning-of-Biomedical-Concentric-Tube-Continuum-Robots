@@ -32,7 +32,7 @@ for i = 1:numTubes
     end
 
     axis('image');
-    view([-135 35]);
+    view([135 30]);
     grid on;
 
     camlight('headlight');

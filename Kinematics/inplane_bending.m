@@ -20,6 +20,14 @@ if ~exist('isCurved', 'var')
     isCurved = ones(1, numTubes);
 end
 
+% E = [tubes.E];
+% I = [tubes.I];
+% k = [tubes.precurve];
+% theta = reshape(theta, size(E));
+% 
+% kx = sum(E .* I .* k .* cos(theta) .* isCurved) / sum(E .* I);
+% ky = sum(E .* I .* k .* sin(theta) .* isCurved) / sum(E .* I);
+
 kx_num = 0;
 kx_dem = 0;
 
@@ -44,4 +52,5 @@ ky = ky_num/ky_dem;
 
 k = sqrt(kx.^2 + ky.^2);
 phi = atan2(ky, kx);
+a = 1;
 end
