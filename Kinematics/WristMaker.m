@@ -63,28 +63,28 @@ classdef WristMaker < handle
             self.Ai = self.robot.Ai(1);
         end
         
-        function [theta, R, s] = maxBendFromGeometry(self)
+        function [theta, R] = maxBendFromGeometry(self)
             % maxBendFromStain calculates the maximum possible bending
             % before permenant deformation based on the wrist material
             % OUTPUTS
             %   theta = (rad) maximum bending angle
             %   R     = (m)   minimum bending radius
-            %   s     = (m)   arc length of curved section
             
             theta = self.n * self.h / (self.ro + self.ybar);
             self.max_theta = theta;
             
             R = self.ro + (self.n - 1) * self.u / theta;
-            s = self.h * self.n + self.u * (self.n - 1);
         end
         
-        function [theta, k, s] = maxBendFromStain(self)
+        function [theta, k, s] = maxBendFromStain(self, emax)
             % maxBendFromStain calculates the maximum possible bending
             % before permenant deformation based on the wrist material
             % OUTPUTS
             %   theta = (rad) maximum bending angle
             %   k     = (1/m) maximum curvature
             %   s     = (m)   arc length of curved section
+            self.emax = emax;
+            
             y = [self.ro - self.ybar, self.ybar - (self.g - self.ro)];
             [d, idx] = max(abs(y));   
             d = d * sign(y(idx));
