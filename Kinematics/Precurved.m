@@ -15,7 +15,7 @@ classdef Precurved < Robot
         % Material Properties
 %         E = 70e6            % (Pa) Youngs Modulus (from wiki avg of austenite)
 %         E = 1.83014e8       % (Pa) Young's Modulus for Bridge Nylon (https://taulman3d.com/bridge-nylon.html)
-        E = 1e9          % (Pa)
+%         E = 1e9          % (Pa)
         I                   % cross sectional moment of inertia of tube
         Poisson = 0.35      % Poisson's ratio for Nitinol
         
@@ -33,7 +33,7 @@ classdef Precurved < Robot
     end
     
     methods
-        function self = Precurved(OD, ID, precurve, Ls, Lc)
+        function self = Precurved(OD, ID, precurve, Ls, Lc, E)
             % Class constructor
             %   only parameters that should change are current orientation
             
@@ -44,6 +44,7 @@ classdef Precurved < Robot
             self.precurve = precurve;
             self.Ls = Ls;
             self.Lc = Lc;
+            self.E = E;
             
             self.I = (pi/32)*(OD^4-ID^4);
         end

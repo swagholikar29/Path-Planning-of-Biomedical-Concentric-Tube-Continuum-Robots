@@ -52,5 +52,4 @@ ky = ky_num/ky_dem;
 
 k = sqrt(kx.^2 + ky.^2);
 phi = atan2(ky, kx);
-a = 1;
 end
