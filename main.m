@@ -1,5 +1,5 @@
 %% Script to create series of precurved concentric tubes and evaluate their kinematics and mechanics
-% close all, clear, clc
+close all, clear, clc
 addpath('kinematics');
 
 %% CREATE PRECURVED TUBES
