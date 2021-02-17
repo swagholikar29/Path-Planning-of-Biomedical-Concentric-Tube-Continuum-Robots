@@ -68,10 +68,9 @@ switch imgType
         
         % make polylines to create arc
         r_vecPX = AnalyzeArc(arcImage, 'axis', ax, 'Style', style);
-        output = r_vecPX(1);
+%         output = r_vecPX(1);
         r_vec = r_vecPX * scale;
-%         output = r_vec(1) + OD/2;
-        output2 = mean(r_vec);
+        output = r_vec + OD/2;
 
 end
 
