@@ -4,9 +4,9 @@ function F = tors(x)
 p1 = x(1);
 p2 = x(2);
 
-l2 = 82.3e-3;
+l2 = 62.3e-3;
 a1 = 0;
-a2 = deg2rad(295);
+a2 = deg2rad(265);
 
 OD1 = 2.39e-3;
 ID1 = 2.01e-3;

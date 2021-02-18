@@ -11,8 +11,8 @@ disp(rad2deg(x))
 
 %% Webster Results
 
-l2 = 82.3e-3;
-a2 = deg2rad(295);
+l2 = 62.3e-3;
+a2 = deg2rad(265);
 
 OD1 = 2.39e-3;
 ID1 = 2.01e-3;

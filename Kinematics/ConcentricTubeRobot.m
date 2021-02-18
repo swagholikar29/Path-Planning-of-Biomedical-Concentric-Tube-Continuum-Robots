@@ -15,6 +15,7 @@ classdef ConcentricTubeRobot < handle
         I       % nx1 vector containins the second moment of inertia for each tube
         
         q       % nx[translation rotation] current configuration
+        arcs
     end
     
     methods
@@ -35,11 +36,14 @@ classdef ConcentricTubeRobot < handle
             self.I = [tubes.I];
         end
         
-        function fwkine(self, q)
+        function fwkine(self, q, torsional_rigid)
             %Calculates the forward kinematics of the complete robot
             %   converts joint to arcs to send to each tube
             %INPUT
             %   q = [nTubes x [translation rotation]] joint variables
+            %   torsional_rigid (boolean) default true: assume torsional
+            %   ridigity along straight sections of tube
+            
             self.q = q;
             numOverlaps = 2*self.nTubes;
             
@@ -52,12 +56,26 @@ classdef ConcentricTubeRobot < handle
             newK = zeros(numOverlaps, 1);  % init new ks for each overlapped section
             phi = zeros(numOverlaps, 1);
             
+            if ~exist('torsional_rigid', 'var')
+                torsional_rigid = true;
+            end
+            
+            psi = q(:,2);   % default input angle to tubes is same as rotation
+            
+            % calculate actual psi based on torsional build up in tubes
+            if torsional_rigid
+                psi = self.calc_torsional_flex(q(:,2));
+                disp(rad2deg(psi));
+            end
+            
             for  link = 1:numOverlaps
 %                 [newK(link), phi(link)] = inplane_bending(self.tubes,q(:,2), isCurved(link,:));
-                [newK(link), phi(link)] = self.inplane_bending(q(:,2), isCurved(link,:));
+                [newK(link), phi(link)] = self.inplane_bending(psi, isCurved(link,:));
             end
             
             arcs = self.links2arcs(numOverlaps, newK, phi, isCurved, s);
+            
+            self.arcs = arcs;
             
             for i = 1:self.nTubes
                 self.tubes(i).fwkine(arcs(:,:,i));
@@ -134,7 +152,7 @@ classdef ConcentricTubeRobot < handle
             options = optimoptions('fsolve', 'OptimalityTolerance', 1e-10);
             dU = @self.energy_func;
             
-            initials = self.q(:,2);
+            initials = alpha;
             psi = fsolve(dU, initials, options);
             
         end
@@ -152,13 +170,13 @@ classdef ConcentricTubeRobot < handle
             % consts
             J = 2 * self.I;
             
-            v = .30; % .30 - .55
-            G = self.E/(2*(1+v));
+            v = .40; % .30 - .55
+            G = 400e6;
             
-            c1 = G(1) * J(1)/self.Ls(1);
-            c2 = G(2) * J(2)/self.Ls(2);
-            c3 = self.E(1)*self.I(1)*self.E(2)*self.I(2)*self.k(1)*self.k(2)/...
-                        (self.E(1)*self.I(1)+self.E(2)*self.I(2));
+            c1 = G * J(1)/self.Ls(1);
+            c2 = G * J(2)/self.Ls(2);
+            c3 = self.E*self.I(1)*self.E*self.I(2)*self.k(1)*self.k(2)/...
+                        (self.E*self.I(1)+self.E*self.I(2));
             
             f1 = c3*l2*sin(psi1 - psi2) - (c1*(2*alpha1 - 2*psi1))./2;
             f2 = -(c2*(2*alpha2 - 2*psi2))./2 - c3*l2*sin(psi1 - psi2);
@@ -166,7 +184,11 @@ classdef ConcentricTubeRobot < handle
             F = [f1; f2];
         end
         
-        function plotTubes(self)
+        function h = plotTubes(self)
+            % PLOTTUBES creates a figure with 3D mesh of the tubes in their
+            % current state
+            % OUTPUT
+            %   h = [n] vector of surf object handles
             
             h = zeros(1,self.nTubes);
             colors = distinguishable_colors(self.nTubes);
@@ -198,7 +220,24 @@ classdef ConcentricTubeRobot < handle
                 zlabel('Z (m)');
                 title('Concentric Precurved Tubes with Deformation');
             end
+        end
+        
+        function animateTubes(self, handles)
+            % ANIMATETUBES updates tube meshes in figure with their latest
+            % state
+            % INPUT:
+            %   handles = [n] handles of surface objects
             
+            for i = 1:length(handles)
+                model = self.tubes(i).makePhysicalModel();
+                h = handles(i);
+                
+                h.XData = model.surface.X;
+                h.YData = model.surface.Y;
+                h.ZData = model.surface.Z;
+                
+                
+            end
         end
     end
 end
