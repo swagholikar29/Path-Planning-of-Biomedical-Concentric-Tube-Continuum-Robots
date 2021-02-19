@@ -63,7 +63,7 @@ classdef ConcentricTubeRobot < handle
             psi = q(:,2);   % default input angle to tubes is same as rotation
             
             % calculate actual psi based on torsional build up in tubes
-            if torsional_rigid
+            if ~torsional_rigid
                 psi = self.calc_torsional_flex(q(:,2));
                 disp(rad2deg(psi));
             end
