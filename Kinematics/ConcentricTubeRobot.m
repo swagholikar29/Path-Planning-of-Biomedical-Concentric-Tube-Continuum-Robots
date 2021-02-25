@@ -65,7 +65,8 @@ classdef ConcentricTubeRobot < handle
             % calculate actual psi based on torsional build up in tubes
             if ~torsional_rigid
                 psi = self.calc_torsional_flex(q(:,2));
-                disp(rad2deg(psi));
+                disp('Input Angles with Torsion (deg)')
+                disp(vpa(rad2deg(psi),4));
             end
             
             for  link = 1:numOverlaps
@@ -149,12 +150,53 @@ classdef ConcentricTubeRobot < handle
         end
         
         function psi = calc_torsional_flex(self, alpha)
-            options = optimoptions('fsolve', 'OptimalityTolerance', 1e-10);
-            dU = @self.energy_func;
+%             options = optimoptions('fsolve', 'OptimalityTolerance', 1e-10);
+%             dU = @self.energy_func;
+%             
+%             initials = alpha;
+%             psi = fsolve(dU, initials, options);
             
-            initials = alpha;
-            psi = fsolve(dU, initials, options);
             
+            guess_psi = alpha;
+            F = self.get_psi_equations(guess_psi);
+            psi1 = vpa(solve(F(1)), 4);
+            psi2 = vpa(solve(F(2)), 4);
+            
+            psi = [psi1 psi2];
+        end
+        
+        function F = get_psi_equations(self, guess_psi)
+            syms psi1 psi2
+            
+            l1 = self.q(1,1);
+            l2 = self.q(2,1);
+            
+            alpha1 = self.q(1,2);
+            alpha2 = self.q(2,2);
+            
+            % consts
+            J = 2 * self.I;
+            
+            v = .40; % .30 - .55
+            G = 400e6;
+            
+            c1 = G * J(1)/self.Ls(1);
+            c2 = G * J(2)/self.Ls(2);
+            c3 = self.E*self.I(1)*self.E*self.I(2)*self.k(1)*self.k(2)/...
+                        (self.E*self.I(1)+self.E*self.I(2));
+                    
+            b1 =  c3 / c1;
+            b2 = c1 / c2;
+                    
+            f1_sine = taylor(alpha2 + b2*alpha1 - psi1*(1 + b2), psi1, guess_psi(1));
+            
+            % UDPATE WITH ACTUAL VALUE
+            f2_sine = taylor(alpha1 + c2/c1*alpha2 - psi2*(1 + c2/c1), psi2, guess_psi(1));
+            
+            f1 = psi1 - alpha1 == l2 * b1 * f1_sine;
+            f2 = psi2 - alpha2 == l2 * c3 / c2 * f2_sine;
+            
+            F = [f1 f2];
         end
         
         function F = energy_func(self, x)
