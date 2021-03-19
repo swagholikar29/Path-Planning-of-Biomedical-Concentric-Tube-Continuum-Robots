@@ -67,10 +67,10 @@ classdef ConcentricTubeRobot < handle
             psi = q(:,2);   % default input angle to tubes is same as rotation
             
             % calculate actual psi based on torsional build up in tubes
-            if ~torsional_rigid
+            if ~torsional_rigid && self.nTubes == 2
                 psi = self.calc_torsional_flex(q(:,2));
-%                 disp('Input Angles with Torsion (deg)')
-%                 disp(vpa(rad2deg(psi),4));
+                disp('Input Angles with Torsion (deg)')
+                disp(vpa(rad2deg(psi),4));
             end
             
             for  link = 1:numOverlaps
