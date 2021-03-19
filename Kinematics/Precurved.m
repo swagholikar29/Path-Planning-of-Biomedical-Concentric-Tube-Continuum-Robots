@@ -31,6 +31,9 @@ classdef Precurved < Robot
         transformations     % Transformation matrix
         robotModel          % A model of the robot
         baseTransform       % base transformation (if any)
+        
+        % Others
+        handle              % plot model handle
     end
     
     methods

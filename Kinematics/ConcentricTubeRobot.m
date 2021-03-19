@@ -6,16 +6,20 @@ classdef ConcentricTubeRobot < handle
         nTubes  % number of component tubes
         tubes   % nx1 vector of Precurved objects
         
-        OD      % nx1 vector containing the tubes' inner diameters
-        ID      % nx1 vector containing the tubes' inner diameters
-        k       % nx1 vector containing the pre-curvature of each tube [mm^-1]
-        Lc      % nx1 vector containing the lenghts of the precurved section of each tube
-        Ls      % nx1 vector containing the lengths of straight section of each tube
-        E       % nx1 vector containing the Young moduli of each tube
-        I       % nx1 vector containins the second moment of inertia for each tube
+        OD      % (m)   nx1 vector containing the tubes' inner diameters
+        ID      % (m)   nx1 vector containing the tubes' inner diameters
+        k       % (1/m) vector containing the pre-curvature of each tube [mm^-1]
+        Lc      % (m)   nx1 vector containing the lenghts of the precurved section of each tube
+        Ls      % (m)   nx1 vector containing the lengths of straight section of each tube
+        E       % (Pa)  Young's modulus of each tube
+        I       % (m^4) nx1   vector containins the second moment of inertia for each tube
         
         q       % nx[translation rotation] current configuration
         arcs
+        
+        v = .217  % Poisson's Ratio for PA12
+        
+        Htriads % triad figure handles
     end
     
     methods
@@ -65,8 +69,8 @@ classdef ConcentricTubeRobot < handle
             % calculate actual psi based on torsional build up in tubes
             if ~torsional_rigid
                 psi = self.calc_torsional_flex(q(:,2));
-                disp('Input Angles with Torsion (deg)')
-                disp(vpa(rad2deg(psi),4));
+%                 disp('Input Angles with Torsion (deg)')
+%                 disp(vpa(rad2deg(psi),4));
             end
             
             for  link = 1:numOverlaps
@@ -159,10 +163,20 @@ classdef ConcentricTubeRobot < handle
             
             guess_psi = alpha;
             F = self.get_psi_equations(guess_psi);
-            psi1 = vpa(solve(F(1)), 4);
-            psi2 = vpa(solve(F(2)), 4);
+            psis1 = vpa(solve(F(1)), 4)
+            psis2 = vpa(solve(F(2)), 4)
             
-            psi = [psi1 psi2];
+            real_idx1 = imag(psis1) == 0;
+            real_idx2 = imag(psis2) == 0;
+            
+            if ~real_idx1 & ~real_idx2
+                disp('ERROR: no real roots')
+            end
+            
+            psi1 = psis1(real_idx1);
+            psi2 = psis2(real_idx2);
+            
+            psi = [psi1(1) psi2(1)];
         end
         
         function F = get_psi_equations(self, guess_psi)
@@ -177,8 +191,8 @@ classdef ConcentricTubeRobot < handle
             % consts
             J = 2 * self.I;
             
-            v = .40; % .30 - .55
-            G = 400e6;
+%             v = .40; % .30 - .55
+            G = self.E/(2 * (1 + self.v));
             
             c1 = G * J(1)/self.Ls(1);
             c2 = G * J(2)/self.Ls(2);
@@ -188,10 +202,10 @@ classdef ConcentricTubeRobot < handle
             b1 =  c3 / c1;
             b2 = c1 / c2;
                     
-            f1_sine = taylor(alpha2 + b2*alpha1 - psi1*(1 + b2), psi1, guess_psi(1));
+            f1_sine = taylor(sin(alpha2 + b2*alpha1 - psi1*(1 + b2)), psi1, guess_psi(1));
             
             % UDPATE WITH ACTUAL VALUE
-            f2_sine = taylor(alpha1 + c2/c1*alpha2 - psi2*(1 + c2/c1), psi2, guess_psi(1));
+            f2_sine = taylor(sin(alpha1 + c2/c1*alpha2 - psi2*(1 + c2/c1)), psi2, guess_psi(1));
             
             f1 = psi1 - alpha1 == l2 * b1 * f1_sine;
             f2 = psi2 - alpha2 == l2 * c3 / c2 * f2_sine;
@@ -226,28 +240,29 @@ classdef ConcentricTubeRobot < handle
             F = [f1; f2];
         end
         
-        function h = plotTubes(self)
+        function  plotTubes(self)
             % PLOTTUBES creates a figure with 3D mesh of the tubes in their
             % current state
             % OUTPUT
             %   h = [n] vector of surf object handles
             
-            h = zeros(1,self.nTubes);
+            
             colors = distinguishable_colors(self.nTubes);
             figure('Name', 'Precurved Tubes');
-            hold on
+            hold on; axis equal;
             
             for i = 1:self.nTubes
                 model = self.tubes(i).makePhysicalModel();
                 
                 % mesh model of the tube
-                h(i) = surf(model.surface.X, model.surface.Y, model.surface.Z,...
+                h = surf(model.surface.X, model.surface.Y, model.surface.Z,...
                     'FaceColor', colors(i,:));
                 
                 % create a triad (coord frame) for the transformations
                 trans = self.tubes(i).transformations;
                 for jj = 1:size(trans,3)
-                    triad('Matrix', trans(:,:,jj), 'scale', 5e-3);
+                    htri = triad('Matrix', trans(:,:,jj), 'scale', 5e-3);
+                    self.Htriads(i,jj) = htri;
                 end
                 
                 axis('image');
@@ -261,24 +276,30 @@ classdef ConcentricTubeRobot < handle
                 ylabel('Y (m)');
                 zlabel('Z (m)');
                 title('Concentric Precurved Tubes with Deformation');
+                
+                self.tubes(i).handle = h;
             end
         end
         
-        function animateTubes(self, handles)
+        function animateTubes(self)
             % ANIMATETUBES updates tube meshes in figure with their latest
             % state
             % INPUT:
             %   handles = [n] handles of surface objects
             
-            for i = 1:length(handles)
+            for i = 1:length(self.tubes)
                 model = self.tubes(i).makePhysicalModel();
-                h = handles(i);
+                h = self.tubes(i).handle;
                 
                 h.XData = model.surface.X;
                 h.YData = model.surface.Y;
                 h.ZData = model.surface.Z;
                 
-                
+                trans = self.tubes(i).transformations;
+                for jj = 1:size(trans,3)
+                    tri = self.Htriads(i,jj);
+                    set(tri, 'Matrix', trans(:,:,jj));
+                end
             end
         end
     end

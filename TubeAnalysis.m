@@ -4,7 +4,7 @@ addpath('kinematics');
 
 %% CREATE PRECURVED TUBES
 % get resultant curvatures from list of tubes
-Rs = [36.07934993	69.80737669];
+Rs = [67.36796562	40.61657128];
 
 
 Ks = 1 ./ (Rs * 1e-3);         % (1/m) curvatures
@@ -12,7 +12,7 @@ straight = zeros(length(Ks),1);
 
 % Ks = [straight Ks];
 
-ODs = [5.4e-3 3.8e-3];         % (m) outer diameters 
+ODs = [5.6e-3 3.9e-3];         % (m) outer diameters 
 
 numRs = size(Ks,1);
 nTubes = size(Ks,2);
