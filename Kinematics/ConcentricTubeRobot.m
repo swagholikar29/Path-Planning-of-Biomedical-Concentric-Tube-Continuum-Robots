@@ -15,9 +15,10 @@ classdef ConcentricTubeRobot < handle
         I       % (m^4) nx1   vector containins the second moment of inertia for each tube
         
         q       % nx[translation rotation] current configuration
-        arcs
+        arcs    
         
-        v = .217  % Poisson's Ratio for PA12
+%         v = .217  % Poisson's Ratio for PA12
+        v = .35
         
         Htriads % triad figure handles
     end
@@ -68,13 +69,12 @@ classdef ConcentricTubeRobot < handle
             
             % calculate actual psi based on torsional build up in tubes
             if ~torsional_rigid && self.nTubes == 2
-                psi = self.calc_torsional_flex(q(:,2));
+                psi = self.calc_torsional_flex(q(:,2), s);
                 disp('Input Angles with Torsion (deg)')
                 disp(vpa(rad2deg(psi),4));
             end
             
             for  link = 1:numOverlaps
-%                 [newK(link), phi(link)] = inplane_bending(self.tubes,q(:,2), isCurved(link,:));
                 [newK(link), phi(link)] = self.inplane_bending(psi, isCurved(link,:));
             end
             
@@ -153,18 +153,15 @@ classdef ConcentricTubeRobot < handle
             end
         end
         
-        function psi = calc_torsional_flex(self, alpha)
-%             options = optimoptions('fsolve', 'OptimalityTolerance', 1e-10);
-%             dU = @self.energy_func;
-%             
+        function psi = calc_torsional_flex(self, alpha, link_lengths)
 %             initials = alpha;
 %             psi = fsolve(dU, initials, options);
             
             
             guess_psi = alpha;
-            F = self.get_psi_equations(guess_psi);
-            psis1 = vpa(solve(F(1)), 4)
-            psis2 = vpa(solve(F(2)), 4)
+            F = self.get_psi_equations(guess_psi, link_lengths);
+            psis1 = vpa(solve(F(1)), 4);
+            psis2 = vpa(solve(F(2)), 4);
             
             real_idx1 = imag(psis1) == 0;
             real_idx2 = imag(psis2) == 0;
@@ -179,11 +176,11 @@ classdef ConcentricTubeRobot < handle
             psi = [psi1(1) psi2(1)];
         end
         
-        function F = get_psi_equations(self, guess_psi)
+        function F = get_psi_equations(self, guess_psi, link_lengths)
             syms psi1 psi2
             
-            l1 = self.q(1,1);
-            l2 = self.q(2,1);
+            l1 = link_lengths(2);
+            l2 = link_lengths(3);
             
             alpha1 = self.q(1,2);
             alpha2 = self.q(2,2);
@@ -213,31 +210,48 @@ classdef ConcentricTubeRobot < handle
             F = [f1 f2];
         end
         
-        function F = energy_func(self, x)
-            psi1 = x(1);
-            psi2 = x(2);
-            
-            l1 = self.q(1,1);
-            l2 = self.q(2,1);
-            
-            alpha1 = self.q(1,2);
-            alpha2 = self.q(2,2);
+        function h = plotEnergyContour(self, alpha)
+            % PLOTENERGYCONTOUR creates a contour plot of the energy at
+            % different psi values for a specific alpha 
+            % INPUT
+            %   alpha   = (rad) [n] input angles for each tube
+            % OUTPUT
+            %   h       = handler for contour plot figure
             
             % consts
+            link_lengths = self.arcs(:,3,1)';
+%             l1 = link_lengths(2);
+%             l2 = link_lengths(3);
+            l1 = 10e-3;
+            l2 = 82.3e-3;
+
             J = 2 * self.I;
             
-            v = .40; % .30 - .55
-            G = 400e6;
+            G = self.E/(2 * (1 + self.v));
             
             c1 = G * J(1)/self.Ls(1);
             c2 = G * J(2)/self.Ls(2);
-            c3 = self.E*self.I(1)*self.E*self.I(2)*self.k(1)*self.k(2)/...
-                        (self.E*self.I(1)+self.E*self.I(2));
+            c3 = (self.E*self.I(1)*self.E*self.I(2)*self.k(1)*self.k(2))/(self.E*self.I(1) + self.E*self.I(2));
+            c4 = (self.E*self.I(1)*self.E*self.I(2))/(self.E*self.I(1) + self.E*self.I(2));
             
-            f1 = c3*l2*sin(psi1 - psi2) - (c1*(2*alpha1 - 2*psi1))./2;
-            f2 = -(c2*(2*alpha2 - 2*psi2))./2 - c3*l2*sin(psi1 - psi2);
-
-            F = [f1; f2];
+            % energy equation function
+            U = @(psi1, psi2) c1./2*(alpha(1) - psi1).^2 + c2./2*(alpha(2) - psi2).^2 + ...
+                              l2.*c3.*(self.k(1)./(2.*self.k(2)) - cos(psi1 - psi2) + self.k(2)./(2.*self.k(1))) + ...
+                              (l1./2) .* c4.*self.k(1).^2;
+            
+            n = 50;
+            min = -20*pi;
+            max = 100*pi;
+            [x, y] = meshgrid(linspace(min, 20*pi, n), linspace(0, max, n));
+            
+            z = U(deg2rad(x), deg2rad(y));
+            
+            h = contour(y, x, z, 50);
+            txt = sprintf("Energy Contour at alphas %d deg and %d deg", rad2deg(alpha(1)), rad2deg(alpha(2))); 
+            title(txt);
+            axis equal
+            xlabel("Psi 2 (rad)");
+            ylabel("Psi 1 (rad)");
         end
         
         function  plotTubes(self)
