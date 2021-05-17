@@ -27,6 +27,7 @@ end
 % 
 % kx = sum(E .* I .* k .* cos(theta) .* isCurved) / sum(E .* I);
 % ky = sum(E .* I .* k .* sin(theta) .* isCurved) / sum(E .* I);
+isCurved
 
 kx_num = 0;
 kx_dem = 0;
@@ -35,18 +36,17 @@ ky_num = 0;
 ky_dem = 0;
 for i = 1:numTubes
     t = tubes(i);
-    M = t.E * t.I;
+    M = t.E * t.I
     
     % skip current tube
     if isCurved(i) == -1, continue, end
     
-    kx_num = kx_num + (M * (isCurved(i) * t.precurve) * cos(theta(i)));
+    kx_num = kx_num + (M * isCurved(i) * t.precurve * cos(theta(i)));
     kx_dem = kx_dem + (M);
     
-    ky_num = ky_num + (M * (isCurved(i) * t.precurve) * sin(theta(i)));
+    ky_num = ky_num + (M * isCurved(i) * t.precurve * sin(theta(i)));
     ky_dem = ky_dem + (M);
 end
-
 kx = kx_num/kx_dem;
 ky = ky_num/ky_dem;
 

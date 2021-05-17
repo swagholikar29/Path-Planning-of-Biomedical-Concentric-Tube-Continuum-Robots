@@ -11,8 +11,9 @@
 close all, clear, clc;
 %% args to set
 
-% path to folder with images
-path = "C:\Users\jfd42\Documents\ThesisTrials\trials\PA12_newset\Tube_5b_3a\";
+% path to folder with images 
+% path = "C:\Users\jfd42\Documents\ThesisTrials\trials\PA12_newset\Tube_5b_3a\";
+path = "C:\Users\jfd42\Documents\ThesisTrials\trials\PA12_newset\Tube_5a_3b_trans\Separate\";
 od = 3.8; % outer diameter
 
 %% required vargs
@@ -21,4 +22,4 @@ relative = false;
 imgtype = 'curvature';
 
 %% analyze images
-AnalyzeFolder(path, 'isRelative', false, 'ImgType', 'curvature', 'OD', 5.4)
+AnalyzeFolder(path, 'isRelative', relative, 'ImgType', imgtype, 'OD', od);

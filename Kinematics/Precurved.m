@@ -31,6 +31,9 @@ classdef Precurved < Robot
         transformations     % Transformation matrix
         robotModel          % A model of the robot
         baseTransform       % base transformation (if any)
+        
+        % Others
+        handle              % plot model handle
     end
     
     methods
@@ -97,7 +100,7 @@ classdef Precurved < Robot
             % Creates model of endoscope for plotting
             %  assumes constant curvature
             
-            ptsPerM = 1e3;  % number of points for the curve
+            ptsPerM = 2e3;  % number of points for the curve
             
             P = self.pose;
             T = self.transformations;
@@ -116,7 +119,7 @@ classdef Precurved < Robot
 %                     distance = norm(P(:,ii+1) - P(:,ii));
 %                     nPts = round(distance * ptsPerM);
                     % for straight section, only need 2 points
-                    nPts = round(ptsPerM*1.5 * s(ii));
+                    nPts = ceil(ptsPerM*1.5 * s(ii));
                     
                     X = linspace(P(1,ii),P(1,ii+1), nPts);
                     Y = linspace(P(2,ii),P(2,ii+1), nPts);
@@ -129,7 +132,8 @@ classdef Precurved < Robot
                     % generate points along an arc of constant curvature
                     % and of length s
                     bend_angle = s(ii)*kappa(ii);
-                    arcAng = linspace(0, bend_angle, s(ii)*ptsPerM);
+                    nPts = ceil(ptsPerM * s(ii));
+                    arcAng = linspace(0, bend_angle, nPts);
                     
                     % points of the curve 
                     pts = radius(ii) .* [(1-cos(arcAng)).*cos(phi(ii));
