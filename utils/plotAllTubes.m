@@ -11,9 +11,10 @@ colors = distinguishable_colors(numTubes);
 
 %% Plot Entire Model
 % figure('Name', 'Individual Tubes');
-hold on
+% hold on
 
 for i = 1:numTubes
+    figure
     tube = tubes(i);
     p = q(i, 1);
     rot = q(i,2);
@@ -41,9 +42,9 @@ for i = 1:numTubes
     camlight('headlight');
     material('dull');
     axis equal
-    xlabel('X (m)');
-    ylabel('Y (m)');
-    zlabel('Z (m)');
+%     xlabel('X (m)');
+%     ylabel('Y (m)');
+%     zlabel('Z (m)');
     title('Individual Tubes No Deformation');
 end
 end

@@ -37,8 +37,8 @@ for i = 1:numRs
     % -------------change these parameters-------------
     % Joint Parameters of the tube
     % translation  rotation
-    q = [0e-3   deg2rad(90);        % outermost tube
-         0e-3  deg2rad(0)];     % innermost tube
+    q = [0e-3   deg2rad(0);        % outermost tube
+         25e-3  deg2rad(0)];     % innermost tube
 
     % calculate forward kinematics
     arcs = joint2arcparams(tubes, q);   % calcs arc parameters of the deformation
@@ -59,4 +59,4 @@ disp(resultant_ang)
 
 %% PLOT
 plotTubes(tubes);           % regular plot of deformed tubes
-% plotAllTubes(tubes, q);     % uncomment for plot of each tube undeformed
+plotAllTubes(tubes, q);     % uncomment for plot of each tube undeformed

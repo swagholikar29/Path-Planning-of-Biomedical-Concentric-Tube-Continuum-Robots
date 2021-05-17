@@ -13,11 +13,10 @@ Lc = [92.3e-3 85e-3];                     % (m) length of curved section
 robot = ConcentricTubeRobot(ODs, IDs, precurves, Ls, Lc, E);
 robot.v = .35;
 
-q = [10e-3   deg2rad(88);        % outermost tube
+q = [10e-3   deg2rad(90);        % outermost tube
      10e-3  deg2rad(0)];     % innermost tube
 
 robot.fwkine(q, false);
-% robot.plotTubes();
 
 figure
 degs = 90:45:270;
@@ -28,3 +27,36 @@ for i=1:length(degs)
     
     robot.plotEnergyContour([deg2rad(0) deg2rad(degs(i))]);
 end
+
+
+% robot.plotTubes();
+
+n = 270;
+angles = zeros(n, 1);
+pause(.1);
+
+% for i = 1:n
+%     
+%     q = [20e-3   deg2rad(i);        % outermost tube
+%          20e-3  deg2rad(0)];     % innermost tube
+%     robot.fwkine(q, false);
+% %     robot.animateTubes();
+%     
+%     arcs = robot.arcs;
+%     angles(i) = rad2deg(arcs(3,2,end));
+%     
+% %     disp(['Input ' num2str(i) ' Output ' num2str(angles(i))])
+%     pause(.01);
+% end
+% figure
+% plot(1:n, angles)
+% xlabel('Input Angle (deg)')
+% ylabel('Output Angle (deg)')
+% title('Angle of tubes with torision')
+% 
+% arcs = robot.arcs;
+% disp('Curvature (1/m)');
+% disp(arcs(:,1,end));
+% 
+% disp('Rotation (deg)');
+% disp(rad2deg(arcs(:,2,end)));
