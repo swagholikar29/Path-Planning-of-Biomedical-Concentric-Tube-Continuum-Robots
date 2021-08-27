@@ -14,7 +14,9 @@ classdef Precurved < Robot
 
         % Material Properties
 %         E = 70e6            % (Pa) Youngs Modulus (from wiki avg of austenite)
-        E = 1.83014e8       % (Pa) Young's Modulus for Bridge Nylon (https://taulman3d.com/bridge-nylon.html)
+%         E = 1.83014e8       % (Pa) Young's Modulus for Bridge Nylon (https://taulman3d.com/bridge-nylon.html)
+%         E = 1e9          % (Pa)
+        E
         I                   % cross sectional moment of inertia of tube
         Poisson = 0.35      % Poisson's ratio for Nitinol
         
@@ -29,10 +31,13 @@ classdef Precurved < Robot
         transformations     % Transformation matrix
         robotModel          % A model of the robot
         baseTransform       % base transformation (if any)
+        
+        % Others
+        handle              % plot model handle
     end
     
     methods
-        function self = Precurved(OD, ID, precurve, Ls, Lc)
+        function self = Precurved(OD, ID, precurve, Ls, Lc, E)
             % Class constructor
             %   only parameters that should change are current orientation
             
@@ -43,8 +48,9 @@ classdef Precurved < Robot
             self.precurve = precurve;
             self.Ls = Ls;
             self.Lc = Lc;
+            self.E = E;
             
-            self.I = (pi/64)*(OD^4-ID^4);
+            self.I = (pi/32)*(OD^4-ID^4);
         end
         
         function self = fwkine(self, arcs, baseTransform)
@@ -94,7 +100,7 @@ classdef Precurved < Robot
             % Creates model of endoscope for plotting
             %  assumes constant curvature
             
-            ptsPerM = 1e3;  % number of points for the curve
+            ptsPerM = 2e3;  % number of points for the curve
             
             P = self.pose;
             T = self.transformations;
@@ -113,7 +119,7 @@ classdef Precurved < Robot
 %                     distance = norm(P(:,ii+1) - P(:,ii));
 %                     nPts = round(distance * ptsPerM);
                     % for straight section, only need 2 points
-                    nPts = round(ptsPerM*1.5 * s(ii));
+                    nPts = ceil(ptsPerM*1.5 * s(ii));
                     
                     X = linspace(P(1,ii),P(1,ii+1), nPts);
                     Y = linspace(P(2,ii),P(2,ii+1), nPts);
@@ -126,7 +132,8 @@ classdef Precurved < Robot
                     % generate points along an arc of constant curvature
                     % and of length s
                     bend_angle = s(ii)*kappa(ii);
-                    arcAng = linspace(0, bend_angle, s(ii)*ptsPerM);
+                    nPts = ceil(ptsPerM * s(ii));
+                    arcAng = linspace(0, bend_angle, nPts);
                     
                     % points of the curve 
                     pts = radius(ii) .* [(1-cos(arcAng)).*cos(phi(ii));
