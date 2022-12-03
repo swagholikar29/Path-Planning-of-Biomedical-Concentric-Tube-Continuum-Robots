@@ -5,7 +5,7 @@ addpath('kinematics');
 %% CREATE PRECURVED TUBES
 
 % parameters for generating tubes
-% ODs = [5.6 3.9].*1e-3;         % (m) outer diameters 
+% (m) outer diameters 
 ODs = [4 3 2] .* 1e-3;
 IDs = ODs - 1.2e-3;             % (m) inner diameters
 E = 1.515e9;
@@ -16,8 +16,7 @@ precurves = 1000./radii;
 precurves = [15 30 45];
 Ls = [75e-3 140e-3 140e-3];                    % (m) length of straight section
 Lc = [30e-3 30e-3 30e-3];                     % (m) length of curved section
-% Ls = [50e-3];
-% Lc = [50e-3];
+
 robot = ConcentricTubeRobot(ODs, IDs, precurves, Ls, Lc, E);
 
 q = [10e-3   deg2rad(0);        % outermost tube

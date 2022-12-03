@@ -1,13 +1,12 @@
 function calcReachableSpace(OD, ID, k, Ls, Lc, E, modelID, nPoints, dq, simulationID)
-%% This function estimates the reachable workspace for a given endoscope configuration
+%% This function estimates the reachable workspace for a given concentric robot
 % Inputs:
 %         ID: endoscope inner diameter  [m] %Replace with CTR OD, ID, k, Ls, Lc, E
 %         OD: endoscope outer diameter  [m] %Replace with CTR OD, ID, k, Ls, Lc, E
 %
-%         modelID:      identifier of the ear model %%%% replace with our model %%%%
+%         modelID:      identifier of the ear model 
 %         nPoints:      number of points to be sampled by RRT
 %         dq:           size of deltaQ, step size of rrt
-%         useWrist:     (boolean) false- bounds changed to no wrist
 %         simulationID: identifier of this simulation
 fprintf('* Estimation of the reachable workspace *\n')
 
@@ -52,19 +51,6 @@ R = R * [0 -1 0; 1 0 0; 0 0 1];
 t = entry_point .* 1e-3;
 T = [R t'; 0 0 0 1];
 
-%%%Remove%%%
-% now slide the endoscope back by its length, so that all the different
-% designs start exploring from the same point
-wrist_len_offset = sum(cutouts.u) + sum(cutouts.h); % len of wrist bend section
-endo_len_offset = 13.4e-3 + 28.2e-3;                % tip len + bend section len
-
-
-Tz = eye(4);
-Tz(3,4) = -wrist_len_offset - endo_len_offset;
-Tz(3,4) = - endo_len_offset;
-T = T * Tz;
-%%%Remove%%%
-
 % Read the meshes from file
 pathStl = fullfile('..', 'anatomical-models', modelID, 'tissue.stl');
 [vertices, faces, ~, ~] = stlRead(pathStl); 
@@ -98,7 +84,6 @@ else
 end
 
 robot = ConcentricTubeRobot(OD, ID, k, Ls, Lc, E)
-
 init_config(6) = minAdv;
 
 %% Run RRT

@@ -2,7 +2,7 @@
 % RRT implements the basic Rapidly-Exploring Random Trees algorithm for a
 % generic continuum robot
 %
-%   robot: (robot obj) instance of Robot object (endoscope/ wrist)
+%   robot: (robot obj) instance of Robot object (endoscope/wrist)%ConcentricTubeRobot
 %   qbounds: (2x6) bounds for each parameter
 %       row 1: min bounds
 %       row 2: max bounds
@@ -10,13 +10,6 @@
 %   deltaQ: (1x6) step size of each parameter
 %   nPoints: (int) amount of points to explore
 %   init_config: (1x6) initial configuration of robot
-%   checkFOV: (bool) to check if tip is within fov of camera
-%
-% Author:   Jesse F. d'Almeida <jfdalmeida@wpi.edu>
-%           L. Fichera <lfichera@wpi.edu>
-%         
-%
-% Last revision: 7/17/2020
 
 if nargin < 3
     collisionDetection = false;
@@ -55,12 +48,7 @@ aList = zeros(3, nPoints);
 xList = zeros(3, nPoints);  % x-direction for each points
 TList = zeros(4,4, nPoints); % tip transformations for each point
 
-% initialize the base transform from the model
-% if collisionDetection
-    T_robot_in_env = model.baseTransform;
-% else
-%     T_robot_in_env = eye(4);
-% end
+T_robot_in_env = model.baseTransform;
 
 robot.fwkine(qList(:,1), T_robot_in_env);   % configure fwkin
 T = robot.transformations(:,:,end);         % transformation to tip
