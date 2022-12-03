@@ -1,9 +1,6 @@
-function calcReachableSpace(u,h,w,ID,OD,modelID, nPoints, dq, useWrist, simulationID) %Replace with(OD, ID, k, Ls, Lc, E, modelID, nPoints, dq, simulationID)
+function calcReachableSpace(OD, ID, k, Ls, Lc, E, modelID, nPoints, dq, simulationID)
 %% This function estimates the reachable workspace for a given endoscope configuration
 % Inputs:
-%         u: length of uncut sections   [m] %Remove from arguments
-%         h: length of cut sections     [m] %Remove from arguments
-%         w: width  of the cut sections [m] %Remove from arguments
 %         ID: endoscope inner diameter  [m] %Replace with CTR OD, ID, k, Ls, Lc, E
 %         OD: endoscope outer diameter  [m] %Replace with CTR OD, ID, k, Ls, Lc, E
 %
@@ -30,14 +27,7 @@ results.simID = simulationID;
 %% Part 1. Run RRT
 % fprintf('Running RRT...\n')
 
-% Define the endoscope model
-n = length(u); % number of notches
-cutouts.w = w;
-cutouts.u = u; % converting to meters
-cutouts.h = h; % converting to meters
-cutouts.alpha = zeros(1,n);  
-
-robot = EndoWrist(ID, OD, n, cutouts); %Change robot || robot = ConcentricTubeRobot(OD, ID, k, Ls, Lc, E)
+robot = ConcentricTubeRobot(OD, ID, k, Ls, Lc, E)
 
 % Read the configuration file to extract information about the meshes
 fid = fopen(fullfile('..', 'anatomical-models', 'configurations.txt'));
@@ -88,7 +78,7 @@ deltaQ = ones(1,6) * dq;
 
 % Define the robot's range of motion
 %%%%%% FIGURE THIS OUT %%%%%%
-minAdv = -sum(cutouts.h) - sum(cutouts.u) + 3e-3; %Re-define to zero
+minAdv = 0
 maxBend = 0.025; % [1/m] %Can be removed as kappa can be directly defined
 maxKappa= 1/maxBend; %Replace with calcMaxCurve.m
 maxTheta= deg2rad(100); % [rad]
@@ -107,7 +97,7 @@ else
                maxKappa  maxTheta  maxDz 0  maxRot maxAdv];
 end
 
-robot = EndoWrist(ID, OD, n, cutouts); %Replace with ctr || robot = ConcentricTubeRobot(OD, ID, k, Ls, Lc, E)
+robot = ConcentricTubeRobot(OD, ID, k, Ls, Lc, E)
 
 init_config(6) = minAdv;
 

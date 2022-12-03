@@ -55,8 +55,6 @@ end
 disp(resultant_k)
 disp(resultant_ang)
 
-
-
 %% PLOT
 plotTubes(tubes);           % regular plot of deformed tubes
 plotAllTubes(tubes, q);     % uncomment for plot of each tube undeformed

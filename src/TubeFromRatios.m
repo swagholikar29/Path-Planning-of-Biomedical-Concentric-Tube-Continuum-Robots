@@ -63,13 +63,8 @@ disp(Rbetween2_3)
 disp("Tubes between ratio of 3 and 5")
 disp(Rbetween3_5)
 
-
 disp("Tubes between ratio of 5 and 8")
 disp(Rbetween5_8)
-
-
-
-
 
 %% calculate diameters based on ratio
 % w = 1.2;    % wall thickness diameter
