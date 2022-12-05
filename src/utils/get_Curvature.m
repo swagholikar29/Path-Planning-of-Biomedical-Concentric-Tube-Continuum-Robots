@@ -10,10 +10,6 @@ function [robot, k, kj, theta, thetaj, s, Emin, notch_stress] = get_Curvature(p)
     modulus = 4.1e9;
     emax = yield/modulus;   % strain at yield
     
-    % Aluminum
-%     yield = 276e6;
-%     modulus = 68.9e9;
-    
     % nitinol
 %     yield = 200e6;
 %     modulus = 40e9;
