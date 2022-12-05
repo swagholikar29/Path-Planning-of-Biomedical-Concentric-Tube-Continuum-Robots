@@ -1,9 +1,12 @@
 function calcReachableSpace(OD, ID, k, Ls, Lc, E, modelID, nPoints, dq, simulationID)
 %% This function estimates the reachable workspace for a given concentric robot
 % Inputs:
-%         ID: endoscope inner diameter  [m] %Replace with CTR OD, ID, k, Ls, Lc, E
-%         OD: endoscope outer diameter  [m] %Replace with CTR OD, ID, k, Ls, Lc, E
-%
+%         ID: CTR Inner diameter  [m] 
+%         OD: CTR Outer diameter  [m] %Replace with CTR OD, ID, k, Ls, Lc, E
+%         k:  k
+%         Ls: Straight section length
+%         Lc: Curved section length
+%         E:  Youngs Modulus
 %         modelID:      identifier of the ear model 
 %         nPoints:      number of points to be sampled by RRT
 %         dq:           size of deltaQ, step size of rrt
@@ -26,7 +29,7 @@ results.simID = simulationID;
 %% Part 1. Run RRT
 % fprintf('Running RRT...\n')
 
-robot = ConcentricTubeRobot(OD, ID, k, Ls, Lc, E)
+robot = ConcentricTubeRobot(OD, ID, k, Ls, Lc, E);
 
 % Read the configuration file to extract information about the meshes
 fid = fopen(fullfile('..', 'anatomical-models', 'configurations.txt'));
@@ -59,29 +62,20 @@ earModel.faces = faces; %Replace with our model
 earModel.baseTransform = T; %Replace with our model
 
 % q steps for rrt
-%        [kappa   endoBaseRot dz tendonDisp wristBaseRot wristAdvancement]
 deltaQ = ones(1,6) * dq;
 
 % Define the robot's range of motion
 %%%%%% FIGURE THIS OUT %%%%%%
-minAdv = 0
+minAdv = 0;
 maxBend = 0.025; % [1/m] %Can be removed as kappa can be directly defined
-maxKappa= 1/maxBend; %Replace with calcMaxCurve.m
+maxKappa= 1/maxBend; %Using CalcMaxCurve.m
 maxTheta= deg2rad(100); % [rad]
-maxDz   = 20e-3; %[m]   %ARBITRARY as dependent on actuator, not in scope%
-maxDisp = sum(cutouts.h); % [m]  %ARBITRARY as dependent on actuator, not in scope%
+maxDz   = 20e-3; %[m] 
 maxRot  = deg2rad(360);  % [rad]
 maxAdv  = 20e-3; % [m] % dz = advancement %ARBITRARY as dependent on actuator, not in scope%
-
-% Normal Bounds TO BE IGNORED
-if useWrist
-    qBounds = [-maxKappa, -maxTheta, 0,     0,      -maxRot, minAdv;
-                maxKappa,  maxTheta, maxDz, maxDisp, maxRot, maxAdv];
-else 
-% No wrist bending Bounds %TO BE USED% %as we have no wrist
-    qBounds = [-maxKappa -maxTheta 0     0 -maxRot minAdv;
-               maxKappa  maxTheta  maxDz 0  maxRot maxAdv];
-end
+ 
+qBounds = [-maxKappa -maxTheta 0     0 -maxRot minAdv;
+            maxKappa  maxTheta  maxDz 0  maxRot maxAdv];
 
 robot = ConcentricTubeRobot(OD, ID, k, Ls, Lc, E)
 init_config(6) = minAdv;

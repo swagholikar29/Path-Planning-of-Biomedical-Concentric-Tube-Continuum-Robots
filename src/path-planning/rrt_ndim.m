@@ -45,7 +45,7 @@ qList = zeros(n, nPoints);
 qList(:,1) = init_config;
 pList = zeros(3, nPoints);
 aList = zeros(3, nPoints);
-xList = zeros(3, nPoints);  % x-direction for each points
+xList = zeros(3, nPoints);   % x-direction for each points
 TList = zeros(4,4, nPoints); % tip transformations for each point
 
 T_robot_in_env = model.baseTransform;

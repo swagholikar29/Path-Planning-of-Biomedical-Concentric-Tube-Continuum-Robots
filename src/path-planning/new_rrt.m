@@ -7,15 +7,10 @@ function qList = new_rrt(nPoints, delta_q, qBounds)
 %   qList = list of configurations
 %       - normalized if qBounds is NOT provided
 %       - scaled to bounds if qBounds is provided
-% 
-% Author: I. Chan <iachan@wpi.edu>
-% 
-% Last Revision: 6/1/2020
 
 close all
 dim = length(delta_q);
 qList = zeros(dim, nPoints);
-%qList(:,1) = 0.5 * ones(dim, 1); % initialize the starting point
 hw = waitbar(0, 'Sampling the configuration space. Please wait...');
 
 for n = 1 : nPoints - 1 
