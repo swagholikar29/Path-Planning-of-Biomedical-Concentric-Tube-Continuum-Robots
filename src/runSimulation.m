@@ -16,7 +16,9 @@ dq = 0.06;
 modelID = 'larynx1'; % ID of the anatomical model (see the `anatomical-models' folder)
 simulationID = [modelID '-dq-' num2str(dq) '-' num2str(nPoints) 'pts'];%%%
 
-%% Replace with robot definition
+%% Define the robot
+
+
 
 %% Estimate the reachable workspace with RRT`
 calcReachableSpace(OD, ID, k, Ls, Lc, E, modelID, nPoints, dq, simulationID)

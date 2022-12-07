@@ -1,9 +1,6 @@
 classdef Precurved < Robot
     % PRECURVED encapsulates the design parameters for a precurved tube
-    % Original methods obtained from Endoscope class in https://github.com/comet-lab/Hale-Bopp on
-    %   9/8/2020
-    %   Original Author: Jesse F d'Almeida <jfdalmeida@wpi.edu>
-    
+  
     properties
         % Physical
         OD                  % (m) outer diameter

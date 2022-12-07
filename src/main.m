@@ -1,27 +1,26 @@
 %% Script to create series of precurved concentric tubes and evaluate their kinematics and mechanics
 clear, clc, close all
-addpath('kinematics');
-
+addpath('path-planning/kinematics');
+addpath('utils');
 %% CREATE PRECURVED TUBES
 
 % parameters for generating tubes
-% (m) outer diameters 
-ODs = [4 3 2] .* 1e-3;
+ODs = [4 3 2] .* 1e-3;          % (m) outer diameters 
 IDs = ODs - 1.2e-3;             % (m) inner diameters
-E = 1.515e9;
+E = 1.515e9;                    % Young's Modulus
 
 radii = [67.36796562	40.61657128];
 % 
-precurves = 1000./radii;
-precurves = [15 30 45];
+precurvature = 1000./radii;
+precurvature = [15 30 45];
 Ls = [75e-3 140e-3 140e-3];                    % (m) length of straight section
 Lc = [30e-3 30e-3 30e-3];                     % (m) length of curved section
 
-robot = ConcentricTubeRobot(ODs, IDs, precurves, Ls, Lc, E);
+robot = ConcentricTubeRobot(ODs, IDs, precurvature, Ls, Lc, E);
 
 q = [10e-3   deg2rad(0);        % outermost tube
-     25e-3  deg2rad(180);
-     40e-3      deg2rad(0)];     % innermost tube
+     25e-3  deg2rad(180);       % middle tube
+     40e-3      deg2rad(0)];    % innermost tube
 % q = [20e-3 deg2rad(-90)];
 
 robot.fwkine(q, false);
@@ -35,7 +34,7 @@ figure;
 hold on;
 h = robot.plotEnergyContour([deg2rad(88) 0]);
 scatter(0.958, 1.374, 100, '*',  'k');
-scatter(deg2rad(0), deg2rad(88),  100, 'x', 'k');
+scatter(deg2rad(0), deg2rad(90),  100, 'x', 'k');
 box('on');
 Set the remaining axes properties
 % 
@@ -43,7 +42,6 @@ Set the remaining axes properties
 robot = ConcentricTubeRobot(3e-3, 2e-3, [30], 100e-3, 50e-3, 1.515e9);
 robot.fwkine([150e-3 0], false);
 robot.plotTubes();
-
 
 %% Animate tube configurations
 set(gcf, 'WindowState', 'maximized');

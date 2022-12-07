@@ -1,8 +1,6 @@
 classdef Robot < handle
     % Robot This class implements the robot-independent kinematics of a continuum robot.
-    %   Author: Loris Fichera <lfichera@wpi.edu>
-    %   Latest revision: 07/07/2019
-
+    
     properties
         nLinks % number of links
     end

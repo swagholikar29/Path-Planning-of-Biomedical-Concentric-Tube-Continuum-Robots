@@ -3,7 +3,7 @@ function calcReachableSpace(OD, ID, k, Ls, Lc, E, modelID, nPoints, dq, simulati
 % Inputs:
 %         ID: CTR Inner diameter  [m] 
 %         OD: CTR Outer diameter  [m] %Replace with CTR OD, ID, k, Ls, Lc, E
-%         k:  k
+%         kappa:  kappa
 %         Ls: Straight section length
 %         Lc: Curved section length
 %         E:  Youngs Modulus
@@ -77,7 +77,7 @@ maxAdv  = 20e-3; % [m] % dz = advancement %ARBITRARY as dependent on actuator, n
 qBounds = [-maxKappa -maxTheta 0     0 -maxRot minAdv;
             maxKappa  maxTheta  maxDz 0  maxRot maxAdv];
 
-robot = ConcentricTubeRobot(OD, ID, k, Ls, Lc, E)
+robot = ConcentricTubeRobot(OD, ID, kappa, Ls, Lc, E)
 init_config(6) = minAdv;
 
 %% Run RRT

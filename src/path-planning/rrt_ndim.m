@@ -2,7 +2,7 @@
 % RRT implements the basic Rapidly-Exploring Random Trees algorithm for a
 % generic continuum robot
 %
-%   robot: (robot obj) instance of Robot object (endoscope/wrist)%ConcentricTubeRobot
+%   robot: (robot obj) instance of Robot object = ConcentricTubeRobot
 %   qbounds: (2x6) bounds for each parameter
 %       row 1: min bounds
 %       row 2: max bounds
